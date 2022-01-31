@@ -1,0 +1,14 @@
+# depslib dependency file v1.0
+1643630397 source:c:\users\drayux\documents\codeblocks\compiler\main.c
+	<stdio.h>
+	<stdlib.h>
+	"dfa.h"
+
+1643630376 source:c:\users\drayux\documents\codeblocks\compiler\dfa.c
+	"dfa.h"
+
+1643630429 c:\users\drayux\documents\codeblocks\compiler\dfa.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
