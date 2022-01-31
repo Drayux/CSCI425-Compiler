@@ -6,47 +6,6 @@
 // Cleans up a tables rows after optimization
 // Optimize table (removes duplicate states)
 
-// Sort a string (in place) and check for duplicates
-// (Utility function for create_table; uses a modified counting sort)
-// Returns 0 if duplicate is found (else the length of the string)
-// TODO: replace this with radix sort if adding support for unicode character set
-int str_sort(char* str) {
-    int len = strnlen(str, RANGE);
-    if (len < 2) return len;  // String is (technically) already sorted
-
-    int* counts = calloc(RANGE, sizeof(int));
-    char* input = malloc(sizeof(char) * (len + 1));
-    memcpy(input, str, (size_t) len + 1);
-
-    // Total the counts
-    for (int i = 0; i < len; i++) {
-        if (counts[(unsigned int) input[i]]++) {
-            len = 0;
-            goto str_sort_ret;
-        }
-    }
-
-    // Adjust the counts array
-    for (int i = 1; i < RANGE; i++)
-        counts[i] += counts[i - 1];
-
-    // Reorder input string
-    for (int i = 0; i < len; i++) {
-        unsigned int x = input[i];
-        unsigned int y = --counts[x];
-        /////////////////////////////////////////
-        // THIS WILL FAULT IF STRING IS IMMUTABLE (char* str = "string")
-        // TO FIX THIS, INSTEAD USE: (char str[] = "string")
-        str[y] = (char) x;
-        /////////////////////////////////////////
-    }
-
-    str_sort_ret:
-    free(counts);
-    free(input);
-    return len;
-}
-
 // Outputs a the provided DFA transition table
 void print_table(dfa* table) {
     // Print the title
@@ -103,8 +62,8 @@ dfa* create_table(char* sigma) {
     table->width = (size_t) (len + 1);  // Width to use every time a new row is allocated
 
     // Allocate the 2D table array
-    table->capacity = (size_t) 4;       // Init with space for 4 states
     table->size = (size_t) 0;
+    table->capacity = (size_t) 4;       // Init with space for 4 states
 
     table->data = (int**) calloc(table->capacity, sizeof(int*));
 
@@ -113,7 +72,7 @@ dfa* create_table(char* sigma) {
 
 // Creates and appends a new, empty state into the specified table
 // Returns the pointer for insertion of state data
-int* create_state(dfa* table) {
+int* create_transition(dfa* table) {
     // Expand the table if need be (kinda like C++ vector)
     if (table->size == table->capacity) {
         int** data_n = (int**) realloc(table->data, 2 * sizeof(int*) * table->capacity);

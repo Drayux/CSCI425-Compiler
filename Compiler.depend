@@ -1,14 +1,27 @@
 # depslib dependency file v1.0
-1643630397 source:c:\users\drayux\documents\codeblocks\compiler\main.c
+1643635174 source:c:\users\drayux\documents\codeblocks\compiler\main.c
 	<stdio.h>
 	<stdlib.h>
+	"nfa.h"
 	"dfa.h"
 
-1643630376 source:c:\users\drayux\documents\codeblocks\compiler\dfa.c
+1643637663 source:c:\users\drayux\documents\codeblocks\compiler\dfa.c
 	"dfa.h"
 
-1643630429 c:\users\drayux\documents\codeblocks\compiler\dfa.h
+1643636912 c:\users\drayux\documents\codeblocks\compiler\dfa.h
+	"util.h"
+
+1643637737 c:\users\drayux\documents\codeblocks\compiler\nfa.h
+	"util.h"
+
+1643633763 c:\users\drayux\documents\codeblocks\compiler\util.h
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
+
+1643630697 source:c:\users\drayux\documents\codeblocks\compiler\nfa.c
+	"nfa.h"
+
+1643633662 source:c:\users\drayux\documents\codeblocks\compiler\util.c
+	"util.h"
 
