@@ -8,8 +8,9 @@
 typedef struct nfa_node {
     int id;
     int* counts;                // The number of transitions for each character
-    struct nfa_node** data;     // Array of pointers to arrays of transitions
+    struct nfa_node*** data;    // Array of pointers to arrays of transitions
                                 //    indexed by index of character transition
+    struct nfa_container* container;
 } nfa_state;
 
 // Container class to house NFA states in a memory-safe fashion :)
@@ -26,6 +27,12 @@ typedef struct nfa_container {
 
 // Function declarations
 nfa* create_container(char* sigma);
+void print_state(nfa_state* state);
 nfa_state* create_state(nfa* container);
+nfa_state* get_state(nfa* container, int index);
+//void add_transition(char tc, nfa* container, int parent, int child);
+void add_transition(char tc, nfa_state* parent, nfa_state* child);
+void destroy_state(nfa_state* state);
+void destroy_container(nfa* container);
 
 #endif // NFA_H

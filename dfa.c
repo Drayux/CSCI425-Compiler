@@ -5,6 +5,8 @@
 // Convert from NFA to DFA
 // Cleans up a tables rows after optimization
 // Optimize table (removes duplicate states)
+// Read table from file (hellman format)
+
 
 // Outputs a the provided DFA transition table
 void print_table(dfa* table) {
@@ -13,12 +15,12 @@ void print_table(dfa* table) {
 
     // Print the column names
     printf("ID\tEntry\tAccept\t  ||\t");
-    for (int i = 0; i < table->width - 1; i++)
+    for (int i = 0; i < table->length; i++)
         printf("%c\t", table->sigma[i]);
     printf("\n");
 
     // Print a separator row
-    for (int i = 0; i < table->width + 3; i++)
+    for (int i = 0; i < table->length + 2; i++)
         printf("========");
     printf("\n");
 
@@ -37,7 +39,7 @@ void print_table(dfa* table) {
         printf("  ||\t");
 
         // Transition values
-        for (int j = 1; j < table->width; j++)
+        for (int j = 1; j <= table->length; j++)
             printf("%d\t", table->data[i][j]);
 
         printf("\n");
@@ -59,7 +61,8 @@ dfa* create_table(char* sigma) {
 
     dfa* table = (dfa*) calloc(1, sizeof(dfa));
     table->sigma = sigma_n;
-    table->width = (size_t) (len + 1);  // Width to use every time a new row is allocated
+    table->length = len;
+    //table->width = (size_t) (len + 1);  // Width to use every time a new row is allocated
 
     // Allocate the 2D table array
     table->size = (size_t) 0;
@@ -89,7 +92,7 @@ int* create_transition(dfa* table) {
     }
 
     // Create the new empty row
-    int* row = calloc(table->width, sizeof(int));
+    int* row = calloc(table->length + 1, sizeof(int));
     *(table->data + table->size) = row;
     table->size++;
 

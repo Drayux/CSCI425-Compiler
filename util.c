@@ -40,3 +40,44 @@ int str_sort(char* str) {
     free(input);
     return len;
 }
+
+// Binary search (the sorted string) for the index of a character
+// Returns -1 if char not found
+int find_char(char tc, char* str, size_t len) {
+    // Base case
+    if (len <= 0) return -1;  // This should never be true
+    if (len == 1) return (str[0] == tc) ? 0 : -1;
+
+    // Compare the value
+    int index = len / 2;
+    char c = str[index];
+
+    // Debug stuff
+//    printf("Current string: %.*s\n", len, str);
+//    printf("Checking index: %d (%c)\n", index, c);
+
+    if (c == tc) return index;
+    if (c > tc) {
+        // Check left half
+        return find_char(tc, str, index);
+
+    } else {
+        // Check right half
+        int x = find_char(tc, str + index + 1, index - ((len % 2) ? 0 : 1));
+        return (x < 0) ? x : (x + index + 1);
+    }
+}
+
+// Use some math to guess the size of an allocation
+// Mostly used as a subroutine of NFA states
+// This is arguably a bit hackjob, but these arrays are not intended for elements to be removed
+size_t calc_alloc_size(unsigned int size) {
+    size--;
+
+    int shifts = 0;
+    while (size > 0) {
+        size = size >> 1;
+        shifts++;
+    }
+    return pow(2, shifts);
+}

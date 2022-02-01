@@ -7,7 +7,8 @@
 // Basic operation similar to a C++ vector
 typedef struct dfa_table {
     char* sigma;        // String corresponding to the possible characters for transitions
-    size_t width;       // Calculated transition table row width (number of cols)
+    size_t length;      // Number of characters in the transition character sets
+                        //   ^^Needs +1 for row 'width' (number of cols)
 
     size_t size;        // Current capacity of table (rows)
     size_t capacity;    // Maximum capacity of table (rows) before realloc is required
