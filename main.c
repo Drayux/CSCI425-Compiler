@@ -41,13 +41,30 @@ int main() {
 //    printf("table size: %d, capacity: %d\n", (int) table->size, (int) table->capacity);
 //    print_table(table);
 
-//    nfa* container = create_container("abcdef");
-//    nfa_state* state;
-//    state = create_state(container);
-//    state = create_state(container);
-//    state = create_state(container);
+    nfa* container = create_container(sigma);
+
+    nfa_state* s1 = create_state(container);
+    nfa_state* s2 = create_state(container);
+    nfa_state* s3 = create_state(container);
+
+    add_transition('b', s1, s1);
+    add_transition('b', s1, s2);
+    add_transition('b', s1, s2);  // Duplicate test
+    add_transition('w', s1, s2);  // Nonexistent transition test
+    add_transition('d', s1, s2);
+    add_transition('f', s1, s3);
+    add_transition(0, s1, s3);    // Add a lambda transition
+
+    s2->flags = 1;
+    add_transition('c', s2, s2);
+
+    s3->flags = 2;
+    add_transition('a', s3, s1);
 
 //    printf("char is: %c\n", state->sigma[1]);
+
+    print_container(container);
+    destroy_container(&container);
 
 //    // Clean up the table (probably not actually needed but who knows *shrug*)
 //    destroy_table(table);

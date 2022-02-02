@@ -101,7 +101,9 @@ int* create_transition(dfa* table) {
 
 // Safely remove a table from memory if no longer needed
 // Kinda vibes the same as destroying the death star
-void destroy_table(dfa* table) {
+void destroy_table(dfa** table_p) {
+    dfa* table = *table_p;
+
     // Free each row of the table
     for (int i = 0; i < table->size; i++)
         free(table->data[i]);
@@ -114,4 +116,5 @@ void destroy_table(dfa* table) {
 
     // Free self
     free(table);
+    *table_p = 0;
 }

@@ -22,6 +22,6 @@ typedef struct dfa_table {
 void print_table(dfa* table);
 dfa* create_table(char* sigma);
 int* create_transition(dfa* table);
-void destroy_table(dfa* table);
+void destroy_table(dfa** table_p);
 
 #endif // DFA_H
