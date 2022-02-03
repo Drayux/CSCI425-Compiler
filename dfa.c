@@ -2,7 +2,6 @@
 
 // FUNCTIONS TODO!
 // Follow lambda
-// Convert from NFA to DFA
 // Cleans up a tables rows after optimization
 // Optimize table (removes duplicate states)
 // Read table from file (hellman format)

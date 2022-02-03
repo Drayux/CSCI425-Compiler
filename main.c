@@ -4,6 +4,15 @@
 #include "nfa.h"
 #include "dfa.h"
 
+
+
+// Converts an NFA to a DFA via the algorithm provided in class
+// Creates a new DFA table, but will not free the provided NFA container
+// *This function may be relocated at some point*
+dfa* convert_nfa(nfa* input) {
+    dfa* table = create_table(input->sigma);
+}
+
 int main() {
     char sigma[] = "abcdef";
     printf("sigma: %s\n\n", sigma);

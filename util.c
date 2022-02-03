@@ -81,3 +81,83 @@ size_t calc_alloc_size(unsigned int size) {
     }
     return pow(2, shifts);
 }
+
+// Creates a new list and returns its pointer
+list* create_list() {
+    list* l = (list*) malloc(sizeof(list));
+
+    l->data = (int*) calloc(1, sizeof(int));
+    l->size = 0;
+    l->capacity = 1;
+    l->sorted = 1;
+
+    return l;
+}
+
+// Gets the index of a value
+// Subroutine of insertion sort
+// Will return location value should be inserted if not found
+size_t get_index(list* l, int x) {
+    // TODO CONTEMPLATE FUNCTIONALITY OF THIS
+}
+
+// Output the contents of a specified list
+void print_list(list* l) {
+    printf("[ ");
+    for (int i = 0; i < l->size; i++)
+        printf("%d ", l->data[i]);
+    printf("]\n");
+}
+
+// Expand the given list if need be (in preparation for the insertion of an element)
+void expand_list(list* l) {
+    if (l->size >= l->capacity) {
+        int* data_n = realloc(l->data, l->capacity * 2 * sizeof(int));
+        if (data_n) {
+            l->data = data_n;
+            l->capacity *= 2;
+        } else fprintf(stderr, "Realloc failed (expansion of dynamic list object)\n");
+    }
+}
+
+// Place a value at the end of a specified list
+void append(list* l, int x) {
+    // Expand the list if need be
+    expand_list(l);
+
+    // Append the new element
+    l->data[l->size] = x;
+
+    if (l->sorted && l->size)    // Size > 0
+        l->sorted = (x > l->data[l->size - 1]) 1 : 0;
+
+    l->size++;
+}
+
+// Inserts a value into a a sorted list
+// (Will append if list is not sorted)
+void insert(list* l, int x) {
+    // Append instead if the list isn't sorted
+    if (!l->sorted) {
+        append(l, x);
+        return;
+    }
+
+
+}
+
+// TODO: Remove the element at a specified index from the list
+//void remove(list* l, size_t i);
+
+// Sort a specified list
+// Returns a new list and does not free the provided list
+list* sort(list* l);
+
+// Determine if two lists contain the same set of elements
+// Takes O(n log n) time as both lists may need to be sorted
+int compare(list* l, list* r) {
+
+}
+
+
+void destroy_list(list** l);
