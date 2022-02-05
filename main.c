@@ -3,8 +3,7 @@
 
 #include "nfa.h"
 #include "dfa.h"
-
-
+#include "list.h"
 
 // Converts an NFA to a DFA via the algorithm provided in class
 // Creates a new DFA table, but will not free the provided NFA container
