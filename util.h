@@ -26,13 +26,15 @@ size_t calc_alloc_size(unsigned int size);
 
 // Specific to list
 list* create_list();
-size_t get_index(list* l, int x);
+int find(list* l, int x);
+int find_sorted(list* l, int x, int* index);
 void print_list(list* l);
 void expand_list(list* l);
 void append(list* l, int x);
 void insert(list* l, int x);
+void insert_at(list* l, int x, int index);
 //void remove(list* l, size_t i);
-list* sort(list* l);    // Insertion sort
+void sort(list* l);    // Insertion sort
 int compare(list* left, list* right);
 void destroy_list(list** l);
 
