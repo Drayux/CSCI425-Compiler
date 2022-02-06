@@ -4,14 +4,15 @@
 #include "nfa.h"
 #include "dfa.h"
 #include "list.h"
+#include "util.h"
 
 // Converts an NFA to a DFA via the algorithm provided in class
 // Creates a new DFA table, but will not free the provided NFA container
 // *This function may be relocated at some point*
-dfa* convert_nfa(nfa* input) {
-    //dfa* table = create_table(input->sigma);
-    return NULL;
-}
+//dfa* convert_nfa(nfa* input) {
+//    dfa* table = create_table(input->sigma);
+//    return table;
+//}
 
 int main() {
     char sigma[] = "abcdef";
@@ -93,6 +94,19 @@ int main() {
 //    int x = compare(l, r);
 //    printf("Lists are equal: ");
 //    x ? printf("TRUE\n") : printf("FALSE\n");
+
+    printf("\n");
+//    int count;
+//    char string[] = "this  is a   test";
+//    char** splits = split(string, ' ', &count);
+//
+//    printf("\ncount: %d\n", count);
+//    printf("1: %s\n", splits[0]);
+//    printf("2: %s\n", splits[1]);
+//    printf("3: %s\n", splits[2]);
+//    printf("4: %s\n", splits[3]);
+
+
 
     return 0;
 }

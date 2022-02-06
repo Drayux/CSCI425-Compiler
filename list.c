@@ -81,7 +81,11 @@ void expand_list(list* l) {
         if (data_n) {
             l->data = data_n;
             l->capacity *= 2;
-        } else fprintf(stderr, "Realloc failed (expansion of dynamic list object)\n");
+
+        } else {
+            fprintf(stderr, "Realloc failed (expansion of dynamic list object)\n");
+            free(l->data);
+        }
     }
 }
 

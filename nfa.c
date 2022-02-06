@@ -34,6 +34,43 @@ nfa* create_container(char* sigma) {
     return container;
 }
 
+//// Read an NFA definition from a file (Hellman format)
+//// Creates and returns a pointer to a new container with the respective definition
+//nfa* parse_file(char* path) {
+//    FILE* inf = fopen(path, "r");
+//
+//    // Check that the file opened successfully
+//    if (!inf) {
+//        fprintf(stderr, "Failed to open file: %s\n", path);
+//        exit(1);  // Exit the program if file cannot be accessed, as per project requirements
+//    }
+//
+//    // Using getline
+//    int lc = 0;
+//    char* linebuf = NULL;
+//    size_t buflen = 0;
+//    ssize_t nread;
+//
+//    // Read the first line
+//    if (nread = getline(&linebuf, &buflen, inf) == -1) {
+//        fprintf(stderr, "Specified file %s is empty\n", path);
+//        exit(1);  // Exit the program if file is empty, as per project requirements
+//    }
+//
+//    // Parse first line
+//    linebuf[nread] = 0;     // Replace newline character with string terminator
+//    int count;
+//    char** params = split(linebuf, ' ', &count);
+//
+//    while ((nread = getline(&linebuf, &buflen, inf)) != -1) {
+//
+//        // Increment line count
+//        lc++;
+//    }
+//
+//    return NULL;
+//}
+
 // Output the contents of a container (simplification of a for loop)
 void print_container(nfa* container) {
     printf("NFA CONTAINER:\n");
@@ -61,7 +98,7 @@ nfa_state* create_state_f(nfa* container, char isEntry, char isAccept) {
             container->states = data_n;
             container->capacity *= 2;
         } else {
-            fprintf(stderr, "Realloc failed (expansion of NFA container)\n");
+            fprintf(stderr, "Realloc failed (expansion of NFA container)\nTODO FREE MEMORY WHEN THIS HAPPENS\n");
             return NULL;
         }
     }

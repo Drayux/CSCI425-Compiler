@@ -85,7 +85,7 @@ int* create_transition(dfa* table) {
             //printf("Table capacity is now %d\n", (int) table->capacity);
 
         } else {
-            fprintf(stderr, "Realloc failed (expansion of DFA table)\n");
+            fprintf(stderr, "Realloc failed (expansion of DFA table)\nTODO FREE MEMORY WHEN THIS HAPPENS\n");
             return NULL;
         }
     }

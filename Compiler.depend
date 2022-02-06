@@ -1,33 +1,37 @@
 # depslib dependency file v1.0
-1644077631 source:c:\users\drayux\documents\codeblocks\compiler\main.c
+1644109552 source:c:\users\drayux\documents\codeblocks\compiler\main.c
 	<stdio.h>
 	<stdlib.h>
 	"nfa.h"
 	"dfa.h"
 	"list.h"
+	"util.h"
 
-1643851396 source:c:\users\drayux\documents\codeblocks\compiler\dfa.c
+1644106494 source:c:\users\drayux\documents\codeblocks\compiler\dfa.c
 	"dfa.h"
 
 1644077622 c:\users\drayux\documents\codeblocks\compiler\dfa.h
 	"util.h"
 
-1643797575 c:\users\drayux\documents\codeblocks\compiler\nfa.h
+1644079695 c:\users\drayux\documents\codeblocks\compiler\nfa.h
 	"util.h"
 
-1644077604 c:\users\drayux\documents\codeblocks\compiler\util.h
+1644098211 c:\users\drayux\documents\codeblocks\compiler\util.h
 	<math.h>
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
 
-1643844070 source:c:\users\drayux\documents\codeblocks\compiler\nfa.c
+1644108114 source:c:\users\drayux\documents\codeblocks\compiler\nfa.c
 	"nfa.h"
 
-1644077657 source:c:\users\drayux\documents\codeblocks\compiler\util.c
+1644109694 source:c:\users\drayux\documents\codeblocks\compiler\util.c
 	"util.h"
 
 1644077712 c:\users\drayux\documents\codeblocks\compiler\list.h
 	<stdio.h>
 	<stdlib.h>
+
+1644106538 source:c:\users\drayux\documents\codeblocks\compiler\list.c
+	"list.h"
 
