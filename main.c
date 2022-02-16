@@ -106,7 +106,7 @@ int main() {
 //    printf("3: %s\n", splits[2]);
 //    printf("4: %s\n", splits[3]);
 
-
+    destroy_list(&l);
 
     return 0;
 }
