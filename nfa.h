@@ -18,6 +18,7 @@ typedef struct nfa_node {
 // Behaves somewhat like a C++ vector
 typedef struct nfa_container {
     char* sigma;        // Transition character set
+    char* orig;         // Copy of TC set, but in the order specified in the input file
     size_t length;      // Number of characters within the transition set
                         //   ^^Each node needs one additional space for lambda
     size_t size;        // Current capacity of table (rows)

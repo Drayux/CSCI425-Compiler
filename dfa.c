@@ -48,18 +48,23 @@ void print_table(dfa* table) {
 // Dynamically allocates and initializes a new table with a given character set
 dfa* create_table(char* sigma) {
     // Prepare the transition character set
-    int len;
-    if (!(len = str_sort(sigma))) {
+    int len = strnlen(sigma, TC_RANGE);
+    char* sigma_n;
+
+    if (!(sigma_n = str_sort(sigma, len))) {
         fprintf(stderr, "Invalid character set provided\n");
         return NULL;
     }
 
     // Copy the string (and exclude the null char)
-    char* sigma_n = (char*) malloc(sizeof(char) * len);
-    memcpy(sigma_n, sigma, (size_t) len);
+    // char* sigma_n = (char*) malloc(sizeof(char) * len);
+    // memcpy(sigma_n, sigma, (size_t) len);
+    char* sigma_o = (char*) calloc(len + 1, sizeof(char));
+    memcpy(sigma_o, sigma, (size_t) len);
 
     dfa* table = (dfa*) calloc(1, sizeof(dfa));
     table->sigma = sigma_n;
+    table->orig = sigma_o;
     table->length = len;
     //table->width = (size_t) (len + 1);  // Width to use every time a new row is allocated
 
@@ -112,6 +117,7 @@ void destroy_table(dfa** table_p) {
 
     // Free transition char string
     free(table->sigma);
+    free(table->orig);
 
     // Free self
     free(table);

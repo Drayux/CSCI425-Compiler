@@ -10,19 +10,24 @@
 // Allows states to find each other when building their transition tables
 nfa* create_container(char* sigma) {
     // Prepare the transition character set
-    int len;
-    if (!(len = str_sort(sigma))) {
+    int len = strnlen(sigma, TC_RANGE);
+    char* sigma_n;
+
+    if (!(sigma_n = str_sort(sigma, len))) {
         fprintf(stderr, "Invalid character set provided\n");
         return NULL;
     }
 
     // Copy the string (and exclude the null char)
-    char* sigma_n = (char*) malloc(sizeof(char) * len);
-    memcpy(sigma_n, sigma, (size_t) len);
+    // char* sigma_n = (char*) malloc(sizeof(char) * len);
+    // memcpy(sigma_n, sigma, (size_t) len);
+    char* sigma_o = (char*) calloc(len + 1, sizeof(char));
+    memcpy(sigma_o, sigma, (size_t) len);
 
     // Create the empty container
     nfa* container = (nfa*) calloc(1, sizeof(nfa));
     container->sigma = sigma_n;
+    container->orig = sigma_o;
     container->length = (size_t) len;
 
     container->size = (size_t) 0;
@@ -34,42 +39,117 @@ nfa* create_container(char* sigma) {
     return container;
 }
 
-//// Read an NFA definition from a file (Hellman format)
-//// Creates and returns a pointer to a new container with the respective definition
-//nfa* parse_file(char* path) {
-//    FILE* inf = fopen(path, "r");
-//
-//    // Check that the file opened successfully
-//    if (!inf) {
-//        fprintf(stderr, "Failed to open file: %s\n", path);
-//        exit(1);  // Exit the program if file cannot be accessed, as per project requirements
-//    }
-//
-//    // Using getline
-//    int lc = 0;
-//    char* linebuf = NULL;
-//    size_t buflen = 0;
-//    ssize_t nread;
-//
-//    // Read the first line
-//    if (nread = getline(&linebuf, &buflen, inf) == -1) {
-//        fprintf(stderr, "Specified file %s is empty\n", path);
-//        exit(1);  // Exit the program if file is empty, as per project requirements
-//    }
-//
-//    // Parse first line
-//    linebuf[nread] = 0;     // Replace newline character with string terminator
-//    int count;
-//    char** params = split(linebuf, ' ', &count);
-//
-//    while ((nread = getline(&linebuf, &buflen, inf)) != -1) {
-//
-//        // Increment line count
-//        lc++;
-//    }
-//
-//    return NULL;
-//}
+// Read an NFA definition from a file (Hellman format)
+// Creates and returns a pointer to a new container with the respective definition
+nfa* parse_file(char* path) {
+    FILE* inf = fopen(path, "r");
+
+    // Check that the file opened successfully
+    if (!inf) {
+        fprintf(stderr, "Failed to open file: %s\n", path);
+        exit(1);  // Exit the program if file cannot be accessed, as per project requirements
+    }
+
+    // Using getline
+    int lc = 0;
+    char* linebuf = NULL;
+    size_t buflen = 0;
+    ssize_t nread;
+
+    // Read the first line
+    while (1) {
+        nread = getline(&linebuf, &buflen, inf);
+        lc++;
+
+        if (nread == -1) {
+            fprintf(stderr, "Specified file %s is empty\n", path);
+            exit(1);  // Exit the program if file is empty, as per project requirements
+
+        } else if (nread > 1) break;     // Ignore empty lines (does not account for CRLF)
+    }
+
+    // Parse first line
+    linebuf[nread] = 0;     // Replace newline character with string terminator
+    size_t pcount;
+    char** params = split(linebuf, ' ', &pcount);
+
+    // First line has at least 3 parameters
+    if (pcount < 3) {
+        fprintf(stderr, "Invalid NFA definition file %s\n", path);
+        exit(-1);
+    }
+
+    // Character used to denote lambda in the config file
+    char lambda_c = params[1][0];
+
+    // Create sigma
+    char* sigma = calloc(pcount - 1, sizeof(char));
+    for (int i = 2; i < pcount; i++)
+        sigma[i - 2] = params[i][0];
+
+    // Create NFA and insert empty states
+    nfa* container = create_container(sigma);
+    int num_states = atoi(params[0]);
+    if (num_states < 1) {
+        fprintf(stderr, "Invalid NFA definition file %s\n", path);
+        exit(-1);
+    }
+    for (int i = 0; i < num_states; i++) create_state(container);
+
+    nfa_state* s1 = get_state(container, 5);
+    nfa_state* s2 = get_state(container, 6);
+
+    // Add the specified transitions
+    char** line;
+    size_t count;
+    while ((nread = getline(&linebuf, &buflen, inf)) != -1) {
+        lc++;       // NOTE: Currently not removing newline character from linebuf
+
+        // Skip empty lines
+        if (nread < 2) continue;
+
+        // Split the new line
+        line = split(linebuf, ' ', &count);
+        if (count < 3) {
+            // Invalid transition
+            fprintf(stderr, "WARNING: Invalid transition (line %d)\n", lc);
+            goto parse_file_cont;
+        }
+
+        int from_state = atoi(line[1]);
+        int to_state = atoi(line[2]);
+        //char tc = line[3][0];
+
+        int flags = !(from_state) * 2;      // State 0 is implied entry state
+        if (line[0][0] == '+') flags++;     // '+' denotes accepting state
+
+        // Insert transition rule
+        // nfa_state* parent = get_state(container, from_state);
+        // nfa_state* child = get_state(container, to_state);
+
+        for (int i = 3; i < count; i++) {
+            char c = line[i][0];
+            if (c == lambda_c) c = 0;
+            // add_transition(c, parent, child);
+            add_transition(c, s1, s2);
+        }
+
+        // Set flags
+        //parent->flags = flags;
+
+        parse_file_cont:
+        for (int i = 0; i < count; i++) free(line[i]);
+        free(line);
+    }
+
+    // Memory cleanup
+    for (int i = 0; i < pcount; i++) free(params[i]);
+    free(params);
+    free(sigma);
+    free(linebuf);
+
+    return container;
+}
 
 // Output the contents of a container (simplification of a for loop)
 void print_container(nfa* container) {
@@ -272,6 +352,7 @@ void destroy_container(nfa** container_p) {
 
     // Free transition set
     free(container->sigma);
+    free(container->orig);
 
     // Finally free self
     free(container);

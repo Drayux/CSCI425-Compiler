@@ -1,44 +1,48 @@
 #include "util.h"
 
-// Sort a string (in place) and check for duplicates
+// Sort a string and check for duplicates
+// len is length of string to sort
 // (Utility function for create_table & create_state; uses a modified counting sort)
-// Returns 0 if duplicate is found (else the length of the string)
+// Returns NULL if duplicate is found else a new sorted string
 // TODO: replace this with radix sort if adding support for unicode character set
-int str_sort(char* str) {
-    int len = strnlen(str, TC_RANGE);
-    if (len < 2) return len;  // String is (technically) already sorted
+char* str_sort(char* str, int len) {
+    char* input = NULL;
+    int* counts = NULL;
 
-    int* counts = calloc(TC_RANGE, sizeof(int));
-    char* input = malloc(sizeof(char) * (len + 1));
-    memcpy(input, str, (size_t) len + 1);
+    if (!len) len = strnlen(str, TC_RANGE);
+    if (len < 2) {
+        // String is (technically) already sorted
+        input = calloc(len + 1, sizeof(char));
+        input[0] = str[0];
+        return input;
+    }
+
+    counts = calloc(TC_RANGE, sizeof(int));
 
     // Total the counts
     for (int i = 0; i < len; i++) {
-        if (counts[(unsigned int) input[i]]++) {
-            len = 0;
+        if (counts[(unsigned int) str[i]]++)
             goto str_sort_ret;
-        }
     }
 
     // Adjust the counts array
     for (int i = 1; i < TC_RANGE; i++)
         counts[i] += counts[i - 1];
 
+    input = malloc(sizeof(char) * (len + 1));
+    memcpy(input, str, (size_t) len + 1);
+    input[len] = 0;     // Possible to sort fewer characters than actual string length
+
     // Reorder input string
     for (int i = 0; i < len; i++) {
-        unsigned int x = input[i];
+        unsigned int x = str[i];
         unsigned int y = --counts[x];
-        /////////////////////////////////////////
-        // THIS WILL FAULT IF STRING IS IMMUTABLE (char* str = "string")
-        // TO FIX THIS, INSTEAD USE: (char str[] = "string")
-        str[y] = (char) x;
-        /////////////////////////////////////////
+        input[y] = (char) x;
     }
 
     str_sort_ret:
     free(counts);
-    free(input);
-    return len;
+    return input;
 }
 
 // Binary search (the sorted string) for the index of a character
@@ -88,6 +92,7 @@ char** split(char* str, char delim, size_t* count) {
             // Create new string
             len = index - start;
             if (len < 1) {
+                // Occurs where are consecutive delmiters
                 start = index + 1;
                 index++;
                 continue;
