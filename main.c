@@ -15,20 +15,28 @@
 //}
 
 int main() {
-    nfa* container = parse_file("automata/cblock.nfa");
-    // nfa* container = create_container("abc");
-    //
-    // nfa_state* s1 = create_state(container);
-    // nfa_state* s2 = create_state(container);
-    // // nfa_state* s3 = create_state(container);
-    // // nfa_state* s4 = create_state(container);
-    //
-    // nfa_state* s3 = get_state(container, 0);
-    // nfa_state* s4 = get_state(container, 1);
-    //
-    // add_transition('a', s1, s2);
-    // add_transition('b', s3, s4);
-    // add_transition('c', s2, s1);
+    // nfa* container = parse_file("automata/cblock.nfa");
+
+    nfa* container = create_container("abc");
+
+    nfa_state* s1 = create_state(container);
+    nfa_state* s2 = create_state(container);
+    // nfa_state* s3 = create_state(container);
+    // nfa_state* s4 = create_state(container);
+
+    nfa_state* s3 = get_state(container, 0);
+    nfa_state* s4 = get_state(container, 1);
+
+	size_t count;
+	char* str = "a b c d e";
+	char** splits = split(str, ' ', &count);
+
+    add_transition(splits[0][0], s1, s2);
+    add_transition(splits[1][0], s3, s4);
+    add_transition(splits[2][0], s2, s1);
+
+	for (int i = 0; i < count; i++) free(splits[i]);
+	free(splits);
 
     print_container(container);
     destroy_container(&container);

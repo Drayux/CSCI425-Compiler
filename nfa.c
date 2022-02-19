@@ -147,6 +147,7 @@ nfa* parse_file(char* path) {
     free(params);
     free(sigma);
     free(linebuf);
+    fclose(inf);
 
     return container;
 }
