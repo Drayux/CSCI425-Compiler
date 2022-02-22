@@ -133,6 +133,16 @@ char** split(char* str, char delim, size_t* count) {
     return split_str;
 }
 
+// Free memeory allocated by a split string
+void free_split(char*** str, size_t count) {
+	char** splitstr = *str;
+
+	for (int i = 0; i < count; i++) free(splitstr[i]);
+	free(splitstr);
+
+	str = NULL;
+}
+
 // Use some math to guess the size of an allocation
 // Mostly used as a subroutine of NFA states
 // This is arguably a bit hackjob, but these arrays are not intended for elements to be removed

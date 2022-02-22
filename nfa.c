@@ -96,8 +96,8 @@ nfa* parse_file(char* path) {
     }
     for (int i = 0; i < num_states; i++) create_state(container);
 
-    nfa_state* s1 = get_state(container, 5);
-    nfa_state* s2 = get_state(container, 6);
+    // nfa_state* s1 = get_state(container, 5);
+    // nfa_state* s2 = get_state(container, 6);
 
     // Add the specified transitions
     char** line;
@@ -113,7 +113,8 @@ nfa* parse_file(char* path) {
         if (count < 3) {
             // Invalid transition
             fprintf(stderr, "WARNING: Invalid transition (line %d)\n", lc);
-            goto parse_file_cont;
+            free_split(&line, count);
+			continue;
         }
 
         int from_state = atoi(line[1]);
@@ -124,27 +125,23 @@ nfa* parse_file(char* path) {
         if (line[0][0] == '+') flags++;     // '+' denotes accepting state
 
         // Insert transition rule
-        // nfa_state* parent = get_state(container, from_state);
-        // nfa_state* child = get_state(container, to_state);
+        nfa_state* parent = get_state(container, from_state);
+        nfa_state* child = get_state(container, to_state);
 
         for (int i = 3; i < count; i++) {
             char c = line[i][0];
             if (c == lambda_c) c = 0;
             // add_transition(c, parent, child);
-            add_transition(c, s1, s2);
+            add_transition('P', parent, child);
         }
 
         // Set flags
         //parent->flags = flags;
-
-        parse_file_cont:
-        for (int i = 0; i < count; i++) free(line[i]);
-        free(line);
+        free_split(&line, count);
     }
 
-    // Memory cleanup
-    for (int i = 0; i < pcount; i++) free(params[i]);
-    free(params);
+    // Resource cleanup
+    free_split(&params, pcount);
     free(sigma);
     free(linebuf);
     fclose(inf);
