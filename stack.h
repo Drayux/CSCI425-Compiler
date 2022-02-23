@@ -9,9 +9,9 @@ typedef struct fa_stack {
 	struct fa_stack* next;
 } stack;
 
-stack* stack_push(stack* head, int data);
+void stack_push(stack** head, int data);
 void print_stack(stack* head);
 int stack_pop(stack** head);
 void destroy_stack(stack** head);
 
-#endif STACK_H
+#endif

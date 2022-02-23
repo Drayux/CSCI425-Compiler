@@ -4,10 +4,10 @@
 #include "nfa.h"
 #include "dfa.h"
 #include "list.h"
+#include "stack.h"
 #include "util.h"
 
 list* follow_character(nfa* container, list* set, char tc) {
-
 
 	// TEMPORARY
 	return NULL;
@@ -37,6 +37,28 @@ dfa* convert_nfa(nfa* input) {
 }
 
 int main() {
+	stack* head = NULL;
+
+	stack_push(&head, 4);
+	stack_push(&head, 6);
+	stack_push(&head, 7);
+	stack_push(&head, 1);
+
+	print_stack(head);
+
+	int x = 0;
+	x = stack_pop(&head);
+	printf("x: %d\n", x);
+
+	x = stack_pop(&head);
+	printf("x: %d\n", x);
+
+	print_stack(head);
+
+	destroy_stack(&head);
+
+	return 0;
+
     nfa* container = parse_file("automata/cblock.nfa");
 
     // nfa* container = create_container("abc");
