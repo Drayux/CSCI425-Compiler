@@ -131,12 +131,12 @@ nfa* parse_file(char* path) {
         for (int i = 3; i < count; i++) {
             char c = line[i][0];
             if (c == lambda_c) c = 0;
-            // add_transition(c, parent, child);
-            add_transition('P', parent, child);
+            add_transition(c, parent, child);
+            // add_transition('P', parent, child);
         }
 
         // Set flags
-        //parent->flags = flags;
+        parent->flags = flags;
         free_split(&line, count);
     }
 
@@ -269,6 +269,9 @@ nfa_state* get_state(nfa* container, int id) {
 
     return s;
 }
+
+// Follow the transition of a specified character
+//nfa_state* follow_transition(nfa* container, nfa_state* state, int char_i) {}
 
 // Adds the child state as a transition to the parent state
 void add_transition(char tc, nfa_state* parent, nfa_state* child) {

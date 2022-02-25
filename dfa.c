@@ -1,11 +1,8 @@
 #include "dfa.h"
 
 // FUNCTIONS TODO!
-// Follow lambda
 // Cleans up a tables rows after optimization
 // Optimize table (removes duplicate states)
-// Read table from file (hellman format)
-
 
 // Outputs a the provided DFA transition table
 void print_table(dfa* table) {

@@ -15,3 +15,27 @@ int stack_pop(stack** head);
 void destroy_stack(stack** head);
 
 #endif
+
+/* Example Usage:
+ *
+ * stack* head = NULL;
+ *
+ * stack_push(&head, 4);
+ * stack_push(&head, 6);
+ * stack_push(&head, 7);
+ * stack_push(&head, 1);
+ *
+ * print_stack(head);
+ *
+ * int x = 0;
+ * x = stack_pop(&head);
+ * printf("x: %d\n", x);
+ *
+ * x = stack_pop(&head);
+ * printf("x: %d\n", x);
+ *
+ * print_stack(head);
+ *
+ * destroy_stack(&head);
+ *
+ */
