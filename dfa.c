@@ -16,7 +16,7 @@ void print_table(dfa* table) {
     printf("\n");
 
     // Print a separator row
-    for (int i = 0; i < table->length + 2; i++)
+    for (int i = 0; i < table->length + 4; i++)
         printf("========");
     printf("\n");
 
@@ -35,8 +35,11 @@ void print_table(dfa* table) {
         printf("  ||\t");
 
         // Transition values
-        for (int j = 1; j <= table->length; j++)
-            printf("%d\t", table->data[i][j]);
+        for (int j = 1; j <= table->length; j++) {
+            int tr = table->data[i][j];
+            if (tr < 0) printf("-\t");
+            else printf("%d\t", tr);
+        }
 
         printf("\n");
     }
@@ -96,6 +99,10 @@ int* create_transition(dfa* table) {
     int* row = calloc(table->length + 1, sizeof(int));
     *(table->data + table->size) = row;
     table->size++;
+
+    // Populate with empty transitions
+    for (int i = 1; i < table->length + 1; i++)
+        row[i] = -1;
 
     return row;
 }

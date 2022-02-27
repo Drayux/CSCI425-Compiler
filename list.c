@@ -18,6 +18,56 @@ list* create_list() {
     return l;
 }
 
+// Creates a new list as a copy of another
+list* copy(list* orig) {
+    if (!orig) return NULL;
+
+    list* new = (list*) malloc(sizeof(list));
+    new->size = orig->size;
+    new->capacity = orig->capacity;
+    new->sorted = orig->sorted;
+
+    // Copy the data
+    new->data = (int*) calloc(new->capacity, sizeof(int));
+    for (int i = 0; i < new->size; i++)
+        new->data[i] = orig->data[i];
+
+    return new;
+}
+
+// Creates a new list representing intersection of two list sets
+list* intersect(list* a, list* b) {
+    if (!a || !b) return NULL;
+
+    list* ret = create_list();
+    for (int i = 0; i < a->size; i++) {
+        int val = a->data[i];
+        if (find(b, val) >= 0) insert(ret, val);
+    }
+
+    return ret;
+}
+
+// Creates a new list representing the union of two list sets
+list* unite(list* a, list* b) {
+    if (!a || !b) return NULL;
+
+    // Basically merge sort
+    // int a_i = 0;
+    // int b_i = 0;
+    // int size = a->size + b->size;
+    // for (int i = 0; i < size; i++) {}
+    // (Nevermind, not worth the trouble rn)
+
+    list* ret = copy(a);
+    for (int i = 0; i < b->size; i++) {
+        int val = b->data[i];
+        if (find(ret, val) < 0) insert(ret, val);
+    }
+
+    return ret;
+}
+
 // Find a value inside a list
 // Will return -1 if not found
 int find(list* l, int x) {
@@ -67,6 +117,11 @@ int find_sorted(list* l, int x, int* index) {
 
 // Output the contents of a specified list
 void print_list(list* l) {
+    if (!l) {
+        printf("NULL\n");
+        return;
+    }
+
     printf("[");
     for (int i = 1; i < l->size; i++)
         printf("% d,", l->data[i - 1]);
@@ -206,6 +261,7 @@ int compare(list* l, list* r) {
 // Frees a list from memory
 void destroy_list(list** l) {
     list* list_n = *l;
+    if (!list_n) return;
 
     // Free list data
     free(list_n->data);

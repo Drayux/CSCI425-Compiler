@@ -10,13 +10,13 @@
 // Follow character transitions for all states in a given set
 // Returns a new set of state IDs
 // Set (list) should be destroyed after use
-list* follow_character(nfa* container, list* start, char tc) {
+list* follow_character(nfa* container, list* start, int char_i) {
 	if (!container || !start) return NULL;
 
 	// Setup
-	int char_i;
-    if (!tc) char_i = container->length;
-    else char_i = find_char(tc, container->sigma, container->length);
+	// int char_i;
+    // if (!tc) char_i = container->length;
+    // else char_i = find_char(tc, container->sigma, container->length);
 	list* follow = create_list();
 
 	// Iterate every state in the starting set
@@ -66,7 +66,7 @@ void follow_lambda(nfa* container, list* set) {
 // Expand the allocation of a state set list
 // Subroutine of convert_nfa()
 void expand_ss(list*** ss, size_t* capacity) {
-	size_t capacity_n = capacity * 2;
+	size_t capacity_n = *capacity * 2;
 	list** ss_new = (list**) realloc(*ss, sizeof(list*) * capacity_n);
 
 	if (!ss_new) {
@@ -86,7 +86,7 @@ void expand_ss(list*** ss, size_t* capacity) {
 // Subroutine of convert_nfa()
 int find_ss(list** ss, list* set, size_t size) {
 	for (int i = 0; i < size; i++)
-		if (compare(ss[i]), set) return i;
+		if (compare(ss[i], set)) return i;
 
 	return -1;
 }
@@ -113,28 +113,103 @@ dfa* convert_nfa(nfa* input) {
 	for (int i = 0; i < input->size; i++) {
 		nfa_state* state = input->states[i];
 		if (state->flags & 2) {
+			// B <-- FollowLambda( {i} )
 			insert(set, state->id);
+			follow_lambda(input, set);
 			break;
 		}
 	}
 
-	// Begin conversion
+	// Find all accepting states
+	// Not the most efficient, but much more readable
+	for (int i = 0; i < input->size; i++) {
+		nfa_state* state = input->states[i];
+		if (state->flags & 1) insert(accepts, state->id);
+	}
+
+	// -- Begin conversion --
+	// Initalize first row
+	int row_i = table->size;	// Should be 0
+	int* row = create_transition(table);
+	state_sets[row_i] = set;
+
+	// Set flags
+	list* inter = intersect(accepts, set);
+	row[0] = (inter->size > 0) ? 3 : 2;
+	destroy_list(&inter);
+
+	// L (aka convert) stores indexes to state_sets
+	// 	  instead of the sets themselves
+	stack_push(&convert, row_i);
+	while (convert) {
+		int state_i = stack_pop(&convert);
+		set = state_sets[state_i];
+
+		// Iterate through the transition character set
+		for (int i = 0; i < table->length; i++) {
+			//char tc = table->sigma[i];
+			list* follow = follow_character(input, set, i);
+			follow_lambda(input, follow);
+
+			// Find the state set if it exists
+			int transition_i = find_ss(state_sets, follow, table->size);
+			if (follow->size > 0 && transition_i < 0) {
+				// State set does not exist yet
+				transition_i = table->size;
+
+				// Expand if necessary
+				if (transition_i >= capacity) expand_ss(&state_sets, &capacity);
+				state_sets[transition_i] = follow;
+
+				// Add the transition
+				row[i + 1] = transition_i;
+
+				// Update the flags
+				inter = intersect(accepts, state_sets[transition_i]);
+				if (inter->size > 0) row[0] = 1;
+				destroy_list(&inter);
+
+				// Push the new state set onto the stack
+				stack_push(&convert, transition_i);
+				row = create_transition(table);
+
+			} else if (follow->size > 0) {
+				// Link to the existing state set
+				row = table->data[state_i];
+				row[i + 1] = transition_i;
+				destroy_list(&follow);
+
+			} else destroy_list(&follow);
+		}
+	}
+
+	for (int j = 0; j < capacity; j++) {
+		list* l = state_sets[j];
+		printf("SET STATE %d: ", j);
+		if (l) print_list(l);
+	} printf("\n");
+
+	// -- Memory cleanup --
+	// State sets
+	for (int i = 0; i < table->size; i++) {
+		list* l = state_sets[i];
+		destroy_list(&l);
+	} free(state_sets);
+
+	// Accept states
+	destroy_list(&accepts);
 
 	return table;
 }
 
 int main() {
-	list* set = create_list();
-	insert(set, 9);
-	print_list(set);
-
     nfa* container = parse_file("automata/cblock.nfa");
+	dfa* table = convert_nfa(container);
+
 	print_container(container);
+	print_table(table);
 
-	follow_lambda(container, set);
-	print_list(set);
-
-	destroy_list(&set);
     destroy_container(&container);
+	destroy_table(&table);
     return 0;
 }

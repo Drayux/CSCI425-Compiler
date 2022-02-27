@@ -15,6 +15,9 @@ typedef struct fa_list {
 
 // 'Member' functions
 list* create_list();
+list* copy(list* orig);
+list* intersect(list* a, list* b);
+list* unite(list* a, list* b);
 int find(list* l, int x);
 int find_sorted(list* l, int x, int* index);
 void print_list(list* l);
@@ -28,3 +31,32 @@ int compare(list* left, list* right);
 void destroy_list(list** l);
 
 #endif // LIST_H
+
+
+
+/* Some tests:
+ *
+ * list* a = create_list();
+ * list* b = create_list();
+ *
+ * insert(a, 1);
+ * insert(a, 2);
+ * insert(a, 3);
+ * insert(a, 4);
+ *
+ * insert(b, 3);
+ * insert(b, 4);
+ * insert(b, 5);
+ *
+ * list* is = intersect(a, b);
+ * print_list(is);
+ *
+ * list* un = unite(a, b);
+ * print_list(un);
+ *
+ * destroy_list(&a);
+ * destroy_list(&b);
+ * destroy_list(&is);
+ * destroy_list(&un);
+ *
+ */
