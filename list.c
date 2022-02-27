@@ -270,3 +270,41 @@ void destroy_list(list** l) {
     free(list_n);
     *l = NULL;
 }
+
+// Expand the allocation of a state set list
+void expand_ss(list*** ss, size_t* capacity) {
+	size_t capacity_n = *capacity * 2;
+	list** ss_new = (list**) realloc(*ss, sizeof(list*) * capacity_n);
+
+	if (!ss_new) {
+		fprintf(stderr, "Realloc failed (expansion of state set list)\n");
+		return;
+	}
+
+	// Create new empty lists for every new allocation
+	//for (int i = capacity; i < capacity_n; i++) {}
+
+	*ss = ss_new;
+	*capacity = capacity_n;
+}
+
+// Find a state set within a list of lists
+// Returns the index of the set if found, else -1
+int find_ss(list** ss, list* set, size_t size) {
+	for (int i = 0; i < size; i++)
+		if (compare(ss[i], set)) return i;
+
+	return -1;
+}
+
+// Free a state set list (list of lists) from memory
+void destroy_ss(list*** ss, size_t capacity) {
+    list** state_sets = *ss;
+
+    for (int i = 0; i < capacity; i++) {
+        list* l = state_sets[i];
+        if (l) destroy_list(&l);
+    } free(state_sets);
+
+    *ss = NULL;
+}

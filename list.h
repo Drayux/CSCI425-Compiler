@@ -30,6 +30,11 @@ void sort(list* l);    // Insertion sort
 int compare(list* left, list* right);
 void destroy_list(list** l);
 
+// Set state functions (list of lists)
+void expand_ss(list*** ss, size_t* capacity);
+int find_ss(list** ss, list* set, size_t size);
+void destroy_ss(list*** ss, size_t capacity);
+
 #endif // LIST_H
 
 

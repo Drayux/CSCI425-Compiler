@@ -63,34 +63,6 @@ void follow_lambda(nfa* container, list* set) {
 	}
 }
 
-// Expand the allocation of a state set list
-// Subroutine of convert_nfa()
-void expand_ss(list*** ss, size_t* capacity) {
-	size_t capacity_n = *capacity * 2;
-	list** ss_new = (list**) realloc(*ss, sizeof(list*) * capacity_n);
-
-	if (!ss_new) {
-		fprintf(stderr, "Realloc failed (expansion of state set list)\n");
-		return;
-	}
-
-	// Create new empty lists for every new allocation
-	//for (int i = capacity; i < capacity_n; i++) {}
-
-	*ss = ss_new;
-	*capacity = capacity_n;
-}
-
-// Find a state set within a list
-// Returns the index of the set if found, else -1
-// Subroutine of convert_nfa()
-int find_ss(list** ss, list* set, size_t size) {
-	for (int i = 0; i < size; i++)
-		if (compare(ss[i], set)) return i;
-
-	return -1;
-}
-
 // Converts an NFA to a DFA via the algorithm provided in class
 // Creates a new DFA table, but will not free the provided NFA container
 // *This function may be relocated at some point*
@@ -98,7 +70,7 @@ dfa* convert_nfa(nfa* input) {
 	if (!input) return NULL;
 
 	// List of state sets
-	// DFA is void of set IDs (which is unnecessary after conversion)
+	// DFA is indexed by state set IDs (contents of which are unnecessary after conversion)
 	size_t capacity = 4;
 	list** state_sets = (list**) calloc(capacity, sizeof(list*));
 	//list** state_sets = expand_ss(&ss, &capacity);
@@ -201,19 +173,26 @@ dfa* convert_nfa(nfa* input) {
 	// } printf("\n");
 
 	// -- Memory cleanup --
-	// State sets
-	for (int i = 0; i < table->size; i++) {
-		list* l = state_sets[i];
-		destroy_list(&l);
-	} free(state_sets);
-
-	// Accept states
-	destroy_list(&accepts);
+	destroy_ss(&state_sets, capacity);		// State sets
+	destroy_list(&accepts);					// Accept states
 
 	return table;
 }
 
 int main(int argc, char** argv) {
+	// -- TESTING -- //
+	// nfa* testnfa = parse_file("automata/cblock.nfa");
+	// dfa* testdfa = convert_nfa(testnfa);
+	// print_table(testdfa);
+	//
+	// remove_transition(testdfa, 3);
+	// print_table(testdfa);
+	//
+	// destroy_container(&testnfa);
+	// destroy_table(&testdfa);
+	// return 0;
+	// ------------- //
+
 	if (argc < 3) {
 		fprintf(stderr, "Usage: %s <input path (NFA)> <output path (DFA)> [tokens...]\n", argv[0]);
 		return -1;

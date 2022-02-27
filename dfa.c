@@ -37,7 +37,7 @@ void print_table(dfa* table) {
             else printf("%d\t", tr);
         }
 
-        printf("\n");
+        printf("\n\n");
     }
 }
 
@@ -158,9 +158,57 @@ int* create_transition(dfa* table) {
     return row;
 }
 
+// Remove a row from the transition table
+void remove_transition(dfa* table, int id) {
+    if (id >= table->size) {
+        fprintf(stderr, "WARNING: Attempt to remove transition row that does not exist\n");
+        return;
+    }
+
+    // Decrease size and shift subsequent rows
+    table->size--;
+    free(table->data[id]);
+    for (int i = id; i < table->size; i++)
+        table->data[i] = table->data[i + 1];
+
+    // Update transition values
+    int tr;
+    for (int i = 0; i < table->size; i++) {
+        for (int j = 1; j <= table->length; j++) {
+            tr = table->data[i][j];
+            if (tr == id) table->data[i][j] = -1;
+            else if (tr > id) table->data[i][j]--;
+        }
+    }
+}
+
+// void update_transition(dfa* table, ...) {}
+
 // Prune unreachable/dead states and merge duplicate states
 void optimize_table(dfa* table) {
-    printf("TODO optimize_table()\n");
+    if (!table) return;
+
+    int rows = table->size;
+    int cols = table->length;       // Offset indexing by one
+    char* sigma = table->sigma;
+
+    // -- STATE MERGING --
+    size_t ss_cap = 4;      // State set list capacity
+    list** state_sets = (list**) calloc(ss_cap, sizeof(list*));
+
+    stack* states = NULL;   // Pseudocode S
+    stack* tchars = NULL;   // Pseudocode C
+
+
+    return;
+    // -- STATE PRUNING --
+    // Don't check the same transition multiple times
+     int** visited = (int**) calloc(rows, sizeof(int*));
+     for (int i = 0; i < rows; i++) visited[i] = (int*) calloc(cols, sizeof(int));
+
+     // -- MEMORY CLEANUP --
+     for (int i = 0; i < rows; i++) if (visited[i]) free(visited[i]);
+     free(visited);
 }
 
 // Determine if the specified token is a part of the DFA's regular set

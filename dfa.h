@@ -1,6 +1,8 @@
 #ifndef DFA_H
 #define DFA_H
 
+#include "list.h"
+#include "stack.h"
 #include "util.h"
 
 // Transition table for discrete finite automata
@@ -24,6 +26,8 @@ void print_table(dfa* table);
 void output_table(dfa* table, char* path);
 dfa* create_table(char* sigma);
 int* create_transition(dfa* table);
+void remove_transition(dfa* table, int id);
+// void update_transition(dfa* table, ...);
 void optimize_table(dfa* table);
 int match_token(dfa* table, char* token);
 void destroy_table(dfa** table_p);
