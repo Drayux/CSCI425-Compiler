@@ -229,12 +229,14 @@ int main(int argc, char** argv) {
 
 	// Match the tokens
 	int result;
-	printf("OUTPUT");
+	if (argc > 3) printf("OUTPUT");
 	for (int i = 3; i < argc; i++) {
 		result = match_token(table, argv[i]);
+
 		if (result < 0) printf(" :M:");
 		else printf(" %d", result);
-	} printf("\n");
+	}
+	if (argc > 3) printf("\n");
 
 	// Memory cleanup
     destroy_container(&container);

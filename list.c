@@ -268,5 +268,5 @@ void destroy_list(list** l) {
 
     // Free self
     free(list_n);
-    *l = 0;
+    *l = NULL;
 }

@@ -47,8 +47,8 @@ nfa* parse_file(char* path) {
     // Check that the file opened successfully
     if (!inf) {
         fprintf(stderr, "Failed to open file: %s\n", path);
-        exit(1);  // Exit the program if file cannot be accessed, as per project requirements
-    } printf("Parsing definition from %s\n", path);
+        exit(1);        // Exit the program if file cannot be accessed, as per project requirements
+    } printf("Parsing definition from %s ...\n", path);
 
     // Using getline
     int lc = 0;
@@ -62,8 +62,8 @@ nfa* parse_file(char* path) {
         lc++;
 
         if (nread == -1) {
-            fprintf(stderr, "Specified file %s is empty\n", path);
-            exit(1);  // Exit the program if file is empty, as per project requirements
+            fprintf(stderr, "Definition file is empty\n");
+            exit(1);    // Exit the program if file is empty, as per project requirements
 
         } else if (nread > 1) break;     // Ignore empty lines (does not account for CRLF)
     }
@@ -75,7 +75,7 @@ nfa* parse_file(char* path) {
 
     // First line has at least 3 parameters
     if (pcount < 3) {
-        fprintf(stderr, "Invalid NFA definition file %s\n", path);
+        fprintf(stderr, "Invalid NFA definition file\n");
         exit(-1);
     }
 
@@ -91,13 +91,10 @@ nfa* parse_file(char* path) {
     nfa* container = create_container(sigma);
     int num_states = atoi(params[0]);
     if (num_states < 1) {
-        fprintf(stderr, "Invalid NFA definition file %s\n", path);
+        fprintf(stderr, "Invalid NFA definition file\n");
         exit(-1);
     }
     for (int i = 0; i < num_states; i++) create_state(container);
-
-    // nfa_state* s1 = get_state(container, 5);
-    // nfa_state* s2 = get_state(container, 6);
 
     // Add the specified transitions
     char** line;
@@ -117,26 +114,26 @@ nfa* parse_file(char* path) {
 			continue;
         }
 
+        // Get the specified states
         int from_state = atoi(line[1]);
         int to_state = atoi(line[2]);
-        //char tc = line[3][0];
 
-        int flags = !(from_state) * 2;      // State 0 is implied entry state
-        if (line[0][0] == '+') flags++;     // '+' denotes accepting state
-
-        // Insert transition rule
         nfa_state* parent = get_state(container, from_state);
         nfa_state* child = get_state(container, to_state);
 
+        // Insert transition rule
+        char tc;
         for (int i = 3; i < count; i++) {
-            char c = line[i][0];
-            if (c == lambda_c) c = 0;
-            add_transition(c, parent, child);
-            // add_transition('P', parent, child);
+            tc = line[i][0];
+            if (tc == lambda_c) tc = 0;
+            add_transition(tc, parent, child);
         }
 
         // Set flags
+        int flags = !(from_state) * 2;      // State 0 is implied entry state
+        if (line[0][0] == '+') flags++;     // '+' denotes accepting state
         parent->flags = flags;
+
         free_split(&line, count);
     }
 
@@ -324,7 +321,7 @@ void destroy_state(nfa_state** state_p) {
 
     // Clean up the transitions array
     // (Recall that we should *not* clean up the linked transitions recursively)
-    for (int i = 0; i < state->container->length; i++) {
+    for (int i = 0; i < state->container->length + 1; i++) {
         //printf("i: %d, count: %d ; address: %p\n", i, state->counts[i], state->data[i]);
         if (state->data[i]) free(state->data[i]);
     } free(state->data);
@@ -357,5 +354,5 @@ void destroy_container(nfa** container_p) {
 
     // Finally free self
     free(container);
-    *container_p = 0;
+    *container_p = NULL;
 }

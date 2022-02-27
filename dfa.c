@@ -210,5 +210,5 @@ void destroy_table(dfa** table_p) {
 
     // Free self
     free(table);
-    *table_p = 0;
+    *table_p = NULL;
 }
