@@ -213,15 +213,30 @@ dfa* convert_nfa(nfa* input) {
 	return table;
 }
 
-int main() {
-	char* outpath = "./tables/example1.dfa";
-    nfa* container = parse_file("automata/example1.nfa");
+int main(int argc, char** argv) {
+	if (argc < 3) {
+		fprintf(stderr, "Usage: %s <input path (NFA)> <output path (DFA)> [tokens...]\n", argv[0]);
+		return -1;
+	}
+
+	char* inpath = argv[1];
+	char* outpath = argv[2];
+
+    nfa* container = parse_file(inpath);
 	dfa* table = convert_nfa(container);
 
-	//print_container(container);
-	//print_table(table);
 	output_table(table, outpath);
 
+	// Match the tokens
+	int result;
+	printf("OUTPUT");
+	for (int i = 3; i < argc; i++) {
+		result = match_token(table, argv[i]);
+		if (result < 0) printf(" :M:");
+		else printf(" %d", result);
+	} printf("\n");
+
+	// Memory cleanup
     destroy_container(&container);
 	destroy_table(&table);
     return 0;

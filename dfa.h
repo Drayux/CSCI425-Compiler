@@ -25,7 +25,7 @@ void output_table(dfa* table, char* path);
 dfa* create_table(char* sigma);
 int* create_transition(dfa* table);
 void optimize_table(dfa* table);
-int parse_token(dfa* table, char* token);
+int match_token(dfa* table, char* token);
 void destroy_table(dfa** table_p);
 
 #endif // DFA_H

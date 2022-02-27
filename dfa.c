@@ -57,6 +57,8 @@ void output_table(dfa* table, char* path) {
     int* row;
     //int row_len = (table->length + 2) * 2;      // Flag + ID + TChars (*2 for delims space/newline)
 
+    // TODO GENERATE AND OUTPUT THE HEADER (state count and transition set)
+
     for (int i = 0; i < table->size; i++) {
         row = table->data[i];
 
@@ -165,7 +167,10 @@ void optimize_table(dfa* table) {
 // Returns -1 if so, or the position of the first character in which the matching fails
 // This function is technically not memory-safe!!
 // However, it is incredibly unlikely that memory garbage will match a DFA for long
-int parse_token(dfa* table, char* token) {
+int match_token(dfa* table, char* token) {
+    // Edge case to account for project requirements
+    if (!token[0]) return 0;    // Empty string
+
     char tc;
     int tc_i;
     int* row;

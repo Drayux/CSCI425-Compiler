@@ -48,7 +48,7 @@ nfa* parse_file(char* path) {
     if (!inf) {
         fprintf(stderr, "Failed to open file: %s\n", path);
         exit(1);  // Exit the program if file cannot be accessed, as per project requirements
-    }
+    } printf("Parsing definition from %s\n", path);
 
     // Using getline
     int lc = 0;
