@@ -1,9 +1,5 @@
 #include "dfa.h"
 
-// FUNCTIONS TODO!
-// Cleans up a tables rows after optimization
-// Optimize table (removes duplicate states)
-
 // Outputs a the provided DFA transition table
 void print_table(dfa* table) {
     // Print the title
@@ -45,6 +41,59 @@ void print_table(dfa* table) {
     }
 }
 
+// Format the DFA into minimal format for file IO
+// Writes the formatted table to the specified file descriptor
+void output_table(dfa* table, char* path) {
+    FILE* outf = fopen(path, "w");
+    if (!outf) {
+        fprintf(stderr, "Failed to open %s\n", path);
+        return;
+    }
+
+    int fd = fileno(outf);
+    char space = ' ';
+    char newline = '\n';
+    char* buf = (char*) calloc(20, sizeof(char));
+    int* row;
+    //int row_len = (table->length + 2) * 2;      // Flag + ID + TChars (*2 for delims space/newline)
+
+    for (int i = 0; i < table->size; i++) {
+        row = table->data[i];
+
+        // Write the flag
+        *buf = (row[0] & 1) ? '+' : '-';
+        write(fd, buf, 1);
+        write(fd, &space, 1);
+
+        // Write the ID
+        snprintf(buf, 20, "%d", i);         // 2^64 consists of 20 characters in base 10
+        write(fd, buf, strnlen(buf, 20));
+
+        // Write the transitions
+        for (int j = 1; j <= table->length; j++) {
+            int tr = row[j];
+            write(fd, &space, 1);
+
+            if (tr < 0) {
+                *buf = 'E';
+                write(fd, buf, 1);
+
+            } else {
+                snprintf(buf, 20, "%d", i);
+                write(fd, buf, strnlen(buf, 20));
+            }
+        }
+
+        // Newline
+        write(fd, &newline, 1);
+    }
+
+    // Resource cleanup
+    printf("Transition table saved to %s\n", path);
+    close(fd);
+    free(buf);
+}
+
 // Dynamically allocates and initializes a new table with a given character set
 dfa* create_table(char* sigma) {
     // Prepare the transition character set
@@ -59,12 +108,12 @@ dfa* create_table(char* sigma) {
     // Copy the string (and exclude the null char)
     // char* sigma_n = (char*) malloc(sizeof(char) * len);
     // memcpy(sigma_n, sigma, (size_t) len);
-    char* sigma_o = (char*) calloc(len + 1, sizeof(char));
-    memcpy(sigma_o, sigma, (size_t) len);
+    //char* sigma_o = (char*) calloc(len + 1, sizeof(char));
+    //memcpy(sigma_o, sigma, (size_t) len);
 
     dfa* table = (dfa*) calloc(1, sizeof(dfa));
     table->sigma = sigma_n;
-    table->orig = sigma_o;
+    //table->orig = sigma_o;
     table->length = len;
     //table->width = (size_t) (len + 1);  // Width to use every time a new row is allocated
 
@@ -107,6 +156,37 @@ int* create_transition(dfa* table) {
     return row;
 }
 
+// Prune unreachable/dead states and merge duplicate states
+void optimize_table(dfa* table) {
+    printf("TODO optimize_table()\n");
+}
+
+// Determine if the specified token is a part of the DFA's regular set
+// Returns -1 if so, or the position of the first character in which the matching fails
+// This function is technically not memory-safe!!
+// However, it is incredibly unlikely that memory garbage will match a DFA for long
+int parse_token(dfa* table, char* token) {
+    char tc;
+    int tc_i;
+    int* row;
+
+    int length = 0;     // Length of match so far
+    int state = 0;      // 0 is assumed entry state
+
+    while ((tc = token[length])) {
+        row = table->data[state];
+        tc_i = find_char(tc, table->sigma, table->length);
+        length++;
+        //printf("Char: %c\n", tc);
+
+        state = row[tc_i + 1];
+        if (state < 0) return length;
+        //printf("State: %d\n\n", state);
+    }
+
+    return (table->data[state][0] & 1) ? -1 : length + 1;
+}
+
 // Safely remove a table from memory if no longer needed
 // Kinda vibes the same as destroying the death star
 void destroy_table(dfa** table_p) {
@@ -121,7 +201,7 @@ void destroy_table(dfa** table_p) {
 
     // Free transition char string
     free(table->sigma);
-    free(table->orig);
+    //free(table->orig);
 
     // Free self
     free(table);

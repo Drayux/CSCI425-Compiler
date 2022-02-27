@@ -145,22 +145,21 @@ dfa* convert_nfa(nfa* input) {
 		int state_i = stack_pop(&convert);
 		set = state_sets[state_i];
 
-		printf("=============================\n");
-		printf("Current state: ");
-		print_list(set);
+		// Debug output
+		// printf("=============================\n");
+		// printf("Current state: ");
+		// print_list(set);
 
 		// Iterate through the transition character set
 		for (int i = 0; i < table->length; i++) {
-			char tc = table->sigma[i];
-			printf("Transition char: ");
-			(tc) ? printf("%c\n", tc) : printf("lambda\n");
-
 			list* follow = follow_character(input, set, i);
 			follow_lambda(input, follow);
 
-			printf("R : ");
-			print_list(follow);
-			printf("\n");
+			// Debug output
+			// printf("Transition char: %c\n", table->sigma[i]);
+			// printf("R : ");
+			// print_list(follow);
+			// printf("\n");
 
 			// Find the state set if it exists
 			int transition_i = find_ss(state_sets, follow, table->size);
@@ -194,11 +193,12 @@ dfa* convert_nfa(nfa* input) {
 		}
 	}
 
-	for (int j = 0; j < table->size; j++) {
-		list* l = state_sets[j];
-		printf("SET STATE %d: ", j);
-		if (l) print_list(l);
-	} printf("\n");
+	// Debug output (print set states)
+	// for (int j = 0; j < table->size; j++) {
+	// 	list* l = state_sets[j];
+	// 	printf("SET STATE %d: ", j);
+	// 	if (l) print_list(l);
+	// } printf("\n");
 
 	// -- Memory cleanup --
 	// State sets
@@ -214,11 +214,13 @@ dfa* convert_nfa(nfa* input) {
 }
 
 int main() {
-    nfa* container = parse_file("automata/cblock.nfa");
-	print_container(container);
+	char* outpath = "./tables/example1.dfa";
+    nfa* container = parse_file("automata/example1.nfa");
 	dfa* table = convert_nfa(container);
 
-	print_table(table);
+	//print_container(container);
+	//print_table(table);
+	output_table(table, outpath);
 
     destroy_container(&container);
 	destroy_table(&table);

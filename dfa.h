@@ -7,7 +7,7 @@
 // Basic operation similar to a C++ vector
 typedef struct dfa_table {
     char* sigma;        // String corresponding to the possible characters for transitions
-    char* orig;         // Copy of TC set left unsorted (same order as infile)
+    //char* orig;         // Copy of TC set left unsorted (same order as infile)
     size_t length;      // Number of characters in the transition character sets
                         //   ^^Needs +1 for row 'width' (number of cols)
 
@@ -21,8 +21,11 @@ typedef struct dfa_table {
 
 // Function declarations
 void print_table(dfa* table);
+void output_table(dfa* table, char* path);
 dfa* create_table(char* sigma);
 int* create_transition(dfa* table);
+void optimize_table(dfa* table);
+int parse_token(dfa* table, char* token);
 void destroy_table(dfa** table_p);
 
 #endif // DFA_H

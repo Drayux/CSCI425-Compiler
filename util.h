@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 // 255 is max number of possible unique character values
 // Not confident this is supposed to work across files?
