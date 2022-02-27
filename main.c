@@ -138,24 +138,37 @@ dfa* convert_nfa(nfa* input) {
 	row[0] = (inter->size > 0) ? 3 : 2;
 	destroy_list(&inter);
 
-	// L (aka convert) stores indexes to state_sets
+	// Stack L (aka convert) stores indexes to state_sets
 	// 	  instead of the sets themselves
 	stack_push(&convert, row_i);
 	while (convert) {
 		int state_i = stack_pop(&convert);
 		set = state_sets[state_i];
 
+		printf("=============================\n");
+		printf("Current state: ");
+		print_list(set);
+
 		// Iterate through the transition character set
 		for (int i = 0; i < table->length; i++) {
-			//char tc = table->sigma[i];
+			char tc = table->sigma[i];
+			printf("Transition char: ");
+			(tc) ? printf("%c\n", tc) : printf("lambda\n");
+
 			list* follow = follow_character(input, set, i);
 			follow_lambda(input, follow);
 
+			printf("R : ");
+			print_list(follow);
+			printf("\n");
+
 			// Find the state set if it exists
 			int transition_i = find_ss(state_sets, follow, table->size);
+			row = table->data[state_i];
 			if (follow->size > 0 && transition_i < 0) {
 				// State set does not exist yet
 				transition_i = table->size;
+				int* row_n = create_transition(table);
 
 				// Expand if necessary
 				if (transition_i >= capacity) expand_ss(&state_sets, &capacity);
@@ -165,17 +178,15 @@ dfa* convert_nfa(nfa* input) {
 				row[i + 1] = transition_i;
 
 				// Update the flags
-				inter = intersect(accepts, state_sets[transition_i]);
-				if (inter->size > 0) row[0] = 1;
+				inter = intersect(accepts, follow);
+				if (inter->size > 0) row_n[0] += 1;
 				destroy_list(&inter);
 
 				// Push the new state set onto the stack
 				stack_push(&convert, transition_i);
-				row = create_transition(table);
 
 			} else if (follow->size > 0) {
 				// Link to the existing state set
-				row = table->data[state_i];
 				row[i + 1] = transition_i;
 				destroy_list(&follow);
 
@@ -183,7 +194,7 @@ dfa* convert_nfa(nfa* input) {
 		}
 	}
 
-	for (int j = 0; j < capacity; j++) {
+	for (int j = 0; j < table->size; j++) {
 		list* l = state_sets[j];
 		printf("SET STATE %d: ", j);
 		if (l) print_list(l);
@@ -204,9 +215,9 @@ dfa* convert_nfa(nfa* input) {
 
 int main() {
     nfa* container = parse_file("automata/cblock.nfa");
+	print_container(container);
 	dfa* table = convert_nfa(container);
 
-	print_container(container);
 	print_table(table);
 
     destroy_container(&container);
