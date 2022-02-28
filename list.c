@@ -281,8 +281,8 @@ void expand_ss(list*** ss, size_t* capacity) {
 		return;
 	}
 
-	// Create new empty lists for every new allocation
-	//for (int i = capacity; i < capacity_n; i++) {}
+	// Initalize all new memory to NULL
+	for (size_t i = *capacity; i < capacity_n; i++) ss_new[i] = NULL;
 
 	*ss = ss_new;
 	*capacity = capacity_n;

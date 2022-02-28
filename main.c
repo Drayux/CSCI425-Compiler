@@ -166,10 +166,11 @@ dfa* convert_nfa(nfa* input) {
 	}
 
 	// Debug output (print set states)
-	// for (int j = 0; j < table->size; j++) {
+	// for (int j = 0; j < /* table->size */ capacity; j++) {
 	// 	list* l = state_sets[j];
-	// 	printf("SET STATE %d: ", j);
+	// 	printf("STATE SET %d: ", j);
 	// 	if (l) print_list(l);
+	// 	//printf("%p\n", l);
 	// } printf("\n");
 
 	// -- Memory cleanup --
@@ -204,6 +205,7 @@ int main(int argc, char** argv) {
 	dfa* table = convert_nfa(container);
 
 	optimize_table(table);
+	//print_table(table);
 	output_table(table, outpath);
 
 	// Match the tokens

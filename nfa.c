@@ -100,10 +100,19 @@ nfa* parse_file(char* path) {
     char** line;
     size_t count;
     while ((nread = getline(&linebuf, &buflen, inf)) != -1) {
-        lc++;       // NOTE: Currently not removing newline character from linebuf
+        lc++;
+
+        // Remove newline from linebuf (first found)
+        int len = 0;
+        for (int i = 0; i < nread; i++) {
+            if (linebuf[i] == '\r' || linebuf[i] == '\n') {
+                linebuf[i] = '\0';
+                break;
+            } len++;
+        }
 
         // Skip empty lines
-        if (nread < 2) continue;
+        if (len < 2) continue;
 
         // Split the new line
         line = split(linebuf, ' ', &count);
@@ -120,6 +129,11 @@ nfa* parse_file(char* path) {
 
         nfa_state* parent = get_state(container, from_state);
         nfa_state* child = get_state(container, to_state);
+
+        // Debug output
+        // printf("LINE:");
+        // for (int i = 0; i < count; i++) printf(" '%s'", line[i]);
+        // printf("\n\n");
 
         // Insert transition rule
         char tc;
