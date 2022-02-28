@@ -307,30 +307,123 @@ int merge_states(dfa* table) {
     return ret;
 }
 
-// Prune unreachable/dead states and merge duplicate states
-void optimize_table(dfa* table) {
-    if (!table) return;
+// Recursive subroutine of optimize_table to remove dead states
+// Initial call should be performed with id = 0
+void prune_states(dfa* table) {
+    size_t size = table->size;
+    list** tree = (list**) calloc(size, sizeof(list*));
+    for (int i = 0; i < size; i++) tree[i] = create_list();
 
-    int rows = table->size;
-    int cols = table->length;       // Offset indexing by one
+    // Build graph a traversal tree
+    int row_i;
+    int* row;
+    int queue_i = 0;
+    list* queue = create_list();
+    list* visited = create_list();
+    append(queue, 0);       // 0 is implied starting state
+    insert(visited, 0);     // ^^
+    while (queue_i < queue->size) {
+        row_i = queue->data[queue_i];
+        row = table->data[row_i];
+        queue_i++;
 
-    int success;
-    while ((success = merge_states(table))) {
-        if (success < 0) {
-            fprintf(stderr, "WARNING: Attempt to merge invalid DFA\n");
-            return;
+        // Append every state with a new transition
+        // Update parent tree
+        for (int i = 1; i <= table->length; i++) {
+            int tr = row[i];
+            if (tr < 0) continue;
+
+            insert(tree[tr], row_i);
+            if (find(visited, tr) < 0) {
+                insert(visited, tr);
+                append(queue, tr);
+            }
         }
     }
 
-    return;
-    // -- STATE PRUNING --
-    // Don't check the same transition multiple times
-     int** visited = (int**) calloc(rows, sizeof(int*));
-     for (int i = 0; i < rows; i++) visited[i] = (int*) calloc(cols, sizeof(int));
+    // Debug output
+    // printf("TRAVERSAL TREE:\n");
+    // for (int i = 0; i < size; i++) {
+    //     printf("Row %d: ", i);
+    //     print_list(tree[i]);
+    // } printf("\n");
 
-     // -- MEMORY CLEANUP --
-     for (int i = 0; i < rows; i++) if (visited[i]) free(visited[i]);
-     free(visited);
+    // Create set of accepting states
+    list* accepts = create_list();
+    for (int i = 0; i < size; i++) {
+        row = table->data[i];
+        if (row[0] & 1) insert(accepts, i);
+    }
+
+    // Edge case handling
+    if (!accepts->size) {
+        fprintf(stderr, "WARNING: DFA has no accepting states\n");
+        goto cleanup;
+    }
+
+    // Traceback on traversal tree and determine dead states (setup)
+    destroy_list(&visited);
+    visited = copy(accepts);
+
+    int* dead = (int*) calloc(size, sizeof(int));  // 0 : bad ; 1 : good
+    stack* traverse = NULL;
+    dead[0] = 1;       // 0 is implied starting state
+
+    for (int i = 0; i < accepts->size; i++) {
+        int tr = accepts->data[i];
+        dead[tr] = 1;
+        stack_push(&traverse, tr);
+    }
+
+    // Actual traceback step
+    while (traverse) {
+        int state = stack_pop(&traverse);
+
+        list* parents = tree[state];
+        for (int i = 0; i < parents->size; i++) {
+            int tr = parents->data[i];
+            if (find(visited, tr) >= 0) continue;
+
+            dead[tr] = 1;
+            insert(visited, tr);
+            stack_push(&traverse, tr);
+        }
+    }
+
+    // More debug output
+    // printf("DEAD TREE:\n");
+    // for (int i = 0; i < size; i++) {
+    //     printf("Row %d: %d\n", i, dead[i]);
+    // } printf("\n");
+
+    // Prune dead/unreachable states (according to dead array)
+    for (int i = size - 1; i > 0; i--)
+        if (!dead[i]) remove_transition(table, i, -1);
+
+    // -- MEMORY CLEANUP --
+    free(dead);
+    cleanup:
+    destroy_list(&accepts);
+    destroy_list(&queue);
+    destroy_list(&visited);
+    destroy_ss(&tree, size);
+}
+
+// Prune unreachable/dead states and merge duplicate states
+void optimize_table(dfa* table) {
+    if (!table) goto fail;
+
+    int success;
+    while ((success = merge_states(table)))
+        if (success < 0) goto fail;
+
+    // -- STATE PRUNING --
+    prune_states(table);
+    return;
+
+    // Error handling
+    fail:
+    fprintf(stderr, "WARNING: Attempt to merge invalid DFA\n");
 }
 
 // Determine if the specified token is a part of the DFA's regular set
