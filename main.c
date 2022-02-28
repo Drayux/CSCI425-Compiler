@@ -183,9 +183,8 @@ int main(int argc, char** argv) {
 	// -- TESTING -- //
 	// nfa* testnfa = parse_file("automata/cblock.nfa");
 	// dfa* testdfa = convert_nfa(testnfa);
-	// print_table(testdfa);
 	//
-	// remove_transition(testdfa, 3);
+	// optimize_table(testdfa);
 	// print_table(testdfa);
 	//
 	// destroy_container(&testnfa);
@@ -204,6 +203,7 @@ int main(int argc, char** argv) {
     nfa* container = parse_file(inpath);
 	dfa* table = convert_nfa(container);
 
+	optimize_table(table);
 	output_table(table, outpath);
 
 	// Match the tokens

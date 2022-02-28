@@ -37,8 +37,10 @@ void print_table(dfa* table) {
             else printf("%d\t", tr);
         }
 
-        printf("\n\n");
+        printf("\n");
     }
+
+    printf("\n");
 }
 
 // Format the DFA into minimal format for file IO
@@ -76,10 +78,12 @@ void output_table(dfa* table, char* path) {
             int tr = row[j];
             write(fd, &space, 1);
 
+            // Empty transition
             if (tr < 0) {
                 *buf = 'E';
                 write(fd, buf, 1);
 
+            // Non-empty transition
             } else {
                 snprintf(buf, 20, "%d", i);
                 write(fd, buf, strnlen(buf, 20));
@@ -159,7 +163,9 @@ int* create_transition(dfa* table) {
 }
 
 // Remove a row from the transition table
-void remove_transition(dfa* table, int id) {
+// ID is index of row to remove
+// REP is value to replace transitions (for use as subroutine of merge_states)
+void remove_transition(dfa* table, int id, int rep) {
     if (id >= table->size) {
         fprintf(stderr, "WARNING: Attempt to remove transition row that does not exist\n");
         return;
@@ -176,7 +182,7 @@ void remove_transition(dfa* table, int id) {
     for (int i = 0; i < table->size; i++) {
         for (int j = 1; j <= table->length; j++) {
             tr = table->data[i][j];
-            if (tr == id) table->data[i][j] = -1;
+            if (tr == id) table->data[i][j] = rep;
             else if (tr > id) table->data[i][j]--;
         }
     }
@@ -184,21 +190,137 @@ void remove_transition(dfa* table, int id) {
 
 // void update_transition(dfa* table, ...) {}
 
+// Merge duplicate states within a DFA
+// Returns -1 if something went wrong
+//          0 if no changes were made
+//          1 if changes were made
+int merge_states(dfa* table) {
+    if (!table) return -1;
+
+    int size = (int) table->size;          // Length of transition table
+    size_t ss_cap = 8;                  // State set list capacity
+    size_t ss_size = 2;                 // Setup will add first two elements
+    list** state_sets = (list**) calloc(ss_cap, sizeof(list*));
+
+    stack* states = NULL;               // Pseudocode L (S) ; Indexed as index of state_sets
+    stack* tchars = NULL;               // Pseudocode L (C) ; Indexed as offset of sigma
+    list* merge_sets = create_list();    // Pseudocode M
+
+    state_sets[0] = create_list();      // Accepting states
+    state_sets[1] = create_list();      // Non-accepting states
+
+    // Setup
+    for (int i = 0; i < table->size; i++) {
+        int flags = table->data[i][0];
+        if (flags & 1) insert(state_sets[0], i);
+        else insert(state_sets[1], i);
+    }
+
+    stack_push(&states, 0);
+    stack_push(&tchars, 0);
+
+    stack_push(&states, 1);
+    stack_push(&tchars, 0);
+
+    // Create the merge set
+    int state_i;
+    int sigma_i;
+    int tr_i;
+    while (states) {
+        list** splits = (list**) calloc(size + 1, sizeof(list*));    // Segregated states (guaranteed no more sets that unique states)
+        for (int i = 0; i < size + 1; i++) splits[i] = create_list();
+
+        state_i = stack_pop(&states);
+        sigma_i = stack_pop(&tchars);
+
+        // Segregate states
+        list* set = state_sets[state_i];
+        for (int i = 0; i < set->size; i++) {
+            int row_i = set->data[i];
+            int* row = table->data[row_i];
+
+            tr_i = row[sigma_i + 1];
+            if (tr_i < 0) tr_i = size;
+
+            insert(splits[tr_i], row_i);
+        }
+
+        // Iterate through state groups (grouped by transition)
+        for (int i = 0; i < size + 1; i++) {
+            list* split = splits[i];
+            if (split->size < 2) continue;
+
+            // Add state as a state set
+            int ss_i = find_ss(state_sets, split, ss_size);
+            if (ss_i < 0) {
+                // Does not exist: Copy and insert
+                if (ss_size >= ss_cap) expand_ss(&state_sets, &ss_cap);
+                state_sets[ss_size] = copy(split);
+                ss_i = ss_size;
+                ss_size++;
+            }
+
+            // Debug output
+            // printf("SPLITS:\n");
+            // for (int i = 0; i < size + 1; i++) {
+            //     printf("%d: ", i);
+            //     print_list(splits[i]);
+            // }
+            // printf("\n");
+
+            // Update data structs
+            if ((sigma_i + 1) >= table->length) insert(merge_sets, ss_i);
+            else {
+                stack_push(&states, ss_i);
+                stack_push(&tchars, sigma_i + 1);
+            }
+        }
+        // Cleanup
+        destroy_ss(&splits, size + 1);
+    }
+
+    // Debug output
+    // printf("STATE SETS:\n");
+    // for (int i = 0; i < ss_size; i++) {
+    //     list* set = state_sets[i];
+    //     print_list(set);
+    // } printf("\n");
+    // printf("MERGE SETS:\n");
+    // for (int i = 0; i < merge_sets->size; i++) print_list(state_sets[merge_sets->data[i]]);
+    // printf("\n");
+
+    // Perform the merge
+    for (int i = 0; i < merge_sets->size; i++) {
+        // Merge every element of each set
+        list* set = state_sets[merge_sets->data[i]];
+        int merge_to = set->data[0];
+        for (int j = 1; j < set->size; j++)
+            remove_transition(table, set->data[j] + 1 - j, merge_to);
+    }
+
+    int ret = (merge_sets->size) ? 1 : 0;
+
+    // -- MEMORY CLEANUP --
+    destroy_list(&merge_sets);
+    destroy_ss(&state_sets, ss_cap);
+
+    return ret;
+}
+
 // Prune unreachable/dead states and merge duplicate states
 void optimize_table(dfa* table) {
     if (!table) return;
 
     int rows = table->size;
     int cols = table->length;       // Offset indexing by one
-    char* sigma = table->sigma;
 
-    // -- STATE MERGING --
-    size_t ss_cap = 4;      // State set list capacity
-    list** state_sets = (list**) calloc(ss_cap, sizeof(list*));
-
-    stack* states = NULL;   // Pseudocode S
-    stack* tchars = NULL;   // Pseudocode C
-
+    int success;
+    while ((success = merge_states(table))) {
+        if (success < 0) {
+            fprintf(stderr, "WARNING: Attempt to merge invalid DFA\n");
+            return;
+        }
+    }
 
     return;
     // -- STATE PRUNING --
