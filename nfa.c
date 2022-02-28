@@ -99,6 +99,7 @@ nfa* parse_file(char* path) {
     // Add the specified transitions
     char** line;
     size_t count;
+    list* state_ids = create_list();
     while ((nread = getline(&linebuf, &buflen, inf)) != -1) {
         lc++;
 
@@ -127,6 +128,14 @@ nfa* parse_file(char* path) {
         int from_state = atoi(line[1]);
         int to_state = atoi(line[2]);
 
+        // Attempt to add the state to the list
+        append(state_ids, from_state);
+        append(state_ids, to_state);
+
+        from_state = find(state_ids, from_state);
+        to_state = find(state_ids, to_state);
+
+        // Get the state from the updated index
         nfa_state* parent = get_state(container, from_state);
         nfa_state* child = get_state(container, to_state);
 
@@ -156,6 +165,7 @@ nfa* parse_file(char* path) {
     free(sigma);
     free(linebuf);
     fclose(inf);
+    destroy_list(&state_ids);
 
     return container;
 }

@@ -182,10 +182,11 @@ dfa* convert_nfa(nfa* input) {
 
 int main(int argc, char** argv) {
 	// -- TESTING -- //
-	// nfa* testnfa = parse_file("automata/dead_unreachable.nfa");
+	// nfa* testnfa = parse_file("automata/dead-a.nfa");
 	// nfa* testnfa = parse_file("automata/cblock.nfa");
 	// dfa* testdfa = convert_nfa(testnfa);
 	//
+	// print_container(testnfa);
 	// print_table(testdfa);
 	// optimize_table(testdfa);
 	// print_table(testdfa);
@@ -208,7 +209,7 @@ int main(int argc, char** argv) {
 
 	optimize_table(table);
 	output_table(table, outpath);
-	//print_table(table);
+	// print_table(table);
 
 	// Match the tokens
 	int result;

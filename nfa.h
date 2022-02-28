@@ -1,6 +1,7 @@
 #ifndef NFA_H
 #define NFA_H
 
+#include "list.h"
 #include "util.h"
 
 // State class for non-discrete finite automata
