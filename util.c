@@ -87,6 +87,7 @@ char** split(char* str, char delim, size_t* count) {
 
     while (1) {
         c = str[index];
+        printf("char: %d\n", c);
         //printf("%d: %c\n", index, c);
         if (c == delim || c == 0) {
             // Create new string

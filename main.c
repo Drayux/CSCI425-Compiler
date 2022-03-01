@@ -209,7 +209,9 @@ int main(int argc, char** argv) {
 
 	optimize_table(table);
 	output_table(table, outpath);
-	// print_table(table);
+
+	print_container(container);
+	print_table(table);
 
 	// Match the tokens
 	int result;

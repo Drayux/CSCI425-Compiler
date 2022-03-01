@@ -431,9 +431,6 @@ void optimize_table(dfa* table) {
 // This function is technically not memory-safe!!
 // However, it is incredibly unlikely that memory garbage will match a DFA for long
 int match_token(dfa* table, char* token) {
-    // Edge case to account for project requirements
-    if (!token[0]) return 0;    // Empty string
-
     char tc;
     int tc_i;
     int* row;
@@ -452,7 +449,8 @@ int match_token(dfa* table, char* token) {
         //printf("State: %d\n\n", state);
     }
 
-    return (table->data[state][0] & 1) ? -1 : length + 1;
+    if (token[0]) length++;     // Edge case to account for project requirements
+    return (table->data[state][0] & 1) ? -1 : length;
 }
 
 // Safely remove a table from memory if no longer needed
