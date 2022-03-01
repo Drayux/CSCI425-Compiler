@@ -1,5 +1,8 @@
 bin/*
 obj/*
 tables/*
+DEBUG
+MATCH
 NFAMATCH
+LUTHER
 *.tar

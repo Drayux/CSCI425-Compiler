@@ -1,11 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include "convert.h"
 
-#include "nfa.h"
-#include "dfa.h"
-#include "list.h"
-#include "stack.h"
-#include "util.h"
+
+// -------- TODO REGEX CONVERSION --------
+
 
 // Follow character transitions for all states in a given set
 // Returns a new set of state IDs
@@ -178,54 +175,4 @@ dfa* convert_nfa(nfa* input) {
 	destroy_list(&accepts);					// Accept states
 
 	return table;
-}
-
-int main(int argc, char** argv) {
-	// -- TESTING -- //
-	// nfa* testnfa = parse_file("automata/dead-a.nfa");
-	// nfa* testnfa = parse_file("automata/cblock.nfa");
-	// dfa* testdfa = convert_nfa(testnfa);
-	//
-	// print_container(testnfa);
-	// print_table(testdfa);
-	// optimize_table(testdfa);
-	// print_table(testdfa);
-	//
-	// destroy_container(&testnfa);
-	// destroy_table(&testdfa);
-	// return 0;
-	// ------------- //
-
-	if (argc < 3) {
-		fprintf(stderr, "Usage: %s <input path (NFA)> <output path (DFA)> [tokens...]\n", argv[0]);
-		return -1;
-	}
-
-	char* inpath = argv[1];
-	char* outpath = argv[2];
-
-    nfa* container = parse_file(inpath);
-	dfa* table = convert_nfa(container);
-
-	optimize_table(table);
-	output_table(table, outpath);
-
-	print_container(container);
-	print_table(table);
-
-	// Match the tokens
-	int result;
-	if (argc > 3) printf("OUTPUT");
-	for (int i = 3; i < argc; i++) {
-		result = match_token(table, argv[i]);
-
-		if (result < 0) printf(" :M:");
-		else printf(" %d", result);
-	}
-	if (argc > 3) printf("\n");
-
-	// Memory cleanup
-    destroy_container(&container);
-	destroy_table(&table);
-    return 0;
 }
