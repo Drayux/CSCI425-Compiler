@@ -1,4 +1,4 @@
-#### Unnamed Compiler: Basic lexer and compiler framework  
+### Unnamed Compiler: Basic lexer and compiler framework  
 ## Course Affiliation  
 This project was originally made as an extention of CSCI425: Compiler Design at Colorado School of Mines.  
 The final goal of this project is to serve as the compiler for a language of my own design, TBA.  
