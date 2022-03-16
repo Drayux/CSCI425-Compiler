@@ -15,4 +15,4 @@ $(TARGET_DEBUG): debug.c $(foreach sf,$(SRCS),src/$(sf))
 
 .PHONY: clean
 clean:
-	rm -f $(TARGET_DEBUG) $(TARGET_CONVERT)
+	rm -f $(TARGET_DEBUG) $(TARGET_CONVERT) $(TARGET_TOKEN)

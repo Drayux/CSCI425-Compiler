@@ -140,10 +140,10 @@ nfa* parse_file(char* path) {
         nfa_state* child = get_state(container, to_state);
 
         // Debug output
-        printf("BUFFER: '%s'\n", linebuf);
-        printf("LINE:");
-        for (int i = 0; i < count; i++) printf(" '%s'", line[i]);
-        printf("\n\n");
+        // printf("BUFFER: '%s'\n", linebuf);
+        // printf("LINE:");
+        // for (int i = 0; i < count; i++) printf(" '%s'", line[i]);
+        // printf("\n\n");
 
         // Insert transition rule
         char tc;
