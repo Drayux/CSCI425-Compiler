@@ -9,7 +9,19 @@
 #include "src/convert.h"
 
 int main(int argc, char** argv) {
-	nfa* testnfa = parse_file("automata/match-c.nfa");
+	// char* str = "Hello\t world\n t\rhis is a  te\nst   ";
+	// size_t len = strlen(str) + 1;
+	// char* str2 = (char*) calloc(len, sizeof(char));
+	// memcpy(str2, str, len * sizeof(char));
+	// printf("'%s'\n", str2);
+	//
+	// clean(str2, 32);
+	// printf("'%s'\n", str2);
+	//
+	// free(str2);
+	// return 0;
+
+	nfa* testnfa = parse_file("automata/match-a.nfa");
 	dfa* testdfa = convert_nfa(testnfa);
 
 	print_container(testnfa);

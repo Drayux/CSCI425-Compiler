@@ -72,9 +72,42 @@ int find_char(char tc, char* str, size_t len) {
     }
 }
 
+// Replaces all ASCII whitespace chars (excl '\0') with the char specified in rep
+// NOTE: String must be null-terminated
+// NOTE: Input string must be freeable
+// NOTE: Currently removes all extended characters
+// No return value: Works in-place
+void clean(char* str, char rep) {
+    char c;
+    char skip = 0;          // 1 if next whitespace should be skipped
+
+    size_t len = 0;
+    size_t capacity = strlen(str);
+
+    for (int i = 0; i < capacity; i++) {
+        c = str[i];
+
+        if (c > 127) continue;
+        if (c < 33 || c == 127) {
+            if (skip) continue;
+
+            c = rep;
+            skip = 1;
+
+        } else skip = 0;
+
+        str[len++] = c;
+    }
+
+    // Determine where to place the null terminator
+    if (skip) len--;
+    str[len++] = 0;
+}
+
 // Split a string by a specified delimiter char
+// NOTE: String must be null-terminated
+// NOTE: '/0' cannot be used as the delimiter
 // Returns an array of null-terminated strings
-// TODO create a memory-safe version of this
 char** split(char* str, char delim, size_t* count) {
     int start = 0;
     int index = 0;

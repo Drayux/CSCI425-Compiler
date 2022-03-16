@@ -14,6 +14,7 @@ const static size_t TC_RANGE = 256;
 // Function declarations
 char* str_sort(char* str, int len);
 int find_char(char tc, char* str, size_t len);
+void clean(char* str, char rep);
 char** split(char* str, char delim, size_t* count);
 void free_split(char*** str, size_t count);
 size_t calc_alloc_size(unsigned int size);

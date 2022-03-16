@@ -68,8 +68,10 @@ nfa* parse_file(char* path) {
         } else if (nread > 1) break;     // Ignore empty lines (does not account for CRLF)
     }
 
+    // Prepare linebuf for parsing
+    clean(linebuf, ' ');
+
     // Parse first line
-    linebuf[nread] = 0;     // Replace newline character with string terminator
     size_t pcount;
     char** params = split(linebuf, ' ', &pcount);
 
@@ -103,17 +105,8 @@ nfa* parse_file(char* path) {
     while ((nread = getline(&linebuf, &buflen, inf)) != -1) {
         lc++;
 
-        // Remove newline from linebuf (first found)
-        int len = 0;
-        for (int i = 0; i < nread; i++) {
-            if (linebuf[i] == '\r' || linebuf[i] == '\n') {
-                linebuf[i] = 0;
-                break;
-            } len++;
-        }
-
-        // Skip empty lines
-        if (len < 2) continue;
+        // Prepare linebuf for parsing
+        clean(linebuf, ' ');
 
         // Split the new line
         line = split(linebuf, ' ', &count);
