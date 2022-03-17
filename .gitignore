@@ -1,8 +1,9 @@
 bin/*
 obj/*
 tables/*
+*.tar
 DEBUG
+CONVERT
 MATCH
 NFAMATCH
 LUTHER
-*.tar

@@ -41,7 +41,7 @@ nfa* create_container(char* sigma) {
 
 // Read an NFA definition from a file (Hellman format)
 // Creates and returns a pointer to a new container with the respective definition
-nfa* parse_file(char* path) {
+nfa* parse_nfa(char* path) {
     FILE* inf = fopen(path, "r");
 
     // Check that the file opened successfully
@@ -104,9 +104,7 @@ nfa* parse_file(char* path) {
     list* state_ids = create_list();
     while ((nread = getline(&linebuf, &buflen, inf)) != -1) {
         lc++;
-
-        // Prepare linebuf for parsing
-        clean(linebuf, ' ');
+        clean(linebuf, ' ');        // Prepare linebuf for parsing
 
         // Split the new line
         line = split(linebuf, ' ', &count);

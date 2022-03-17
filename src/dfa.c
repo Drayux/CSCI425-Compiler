@@ -4,6 +4,10 @@
 void print_table(dfa* table) {
     // Print the title
     printf("TRANSITION TABLE:\n");
+    if (!table) {
+        printf("NULL\n\n");
+        return;
+    }
 
     // Print the column names
     printf("ID\tEntry\tAccept\t  ||\t");
@@ -98,6 +102,97 @@ void output_table(dfa* table, char* path) {
     printf("Transition table saved to %s\n", path);
     close(fd);
     free(buf);
+}
+
+// Read an transition table from a specified file
+// Creates and returns a pointer to a new table with the respective definition
+dfa* parse_table(char* path, char* sigma) {
+    FILE* inf = fopen(path, "r");
+
+    // Check that the file opened successfully
+    if (!inf) {
+        fprintf(stderr, "Failed to open file: %s\n", path);
+        exit(1);        // Exit the program if file cannot be accessed, as per project requirements
+    } printf("Parsing table from %s ...\n", path);
+
+    // Using getline
+    int lc = 0;
+    char* linebuf = NULL;
+    size_t buflen = 0;
+    ssize_t nread;
+
+    dfa* table = create_table(sigma);
+
+    char** line;
+    size_t count;
+    list* state_ids = create_list();
+    while ((nread = getline(&linebuf, &buflen, inf)) != -1) {
+        lc++;
+        if (nread < 2) continue;
+
+        // Prepare linebuf for parsing
+        clean(linebuf, ' ');
+
+        // Split the new line
+        line = split(linebuf, ' ', &count);
+        if (count < table->length + 2) {
+            // Invalid transition
+            fprintf(stderr, "WARNING: Invalid transition (line %d)\n", lc);
+            free_split(&line, count);
+			continue;
+        }
+
+        // -- Parse the transition --
+        int index;
+        int s_id = atoi(line[1]);
+        if ((index = find(state_ids, s_id)) < 0) {
+            create_transition(table);
+            append(state_ids, s_id);
+            index = state_ids->size - 1;
+        }
+
+        // TODO: Integrity check
+        // Needs to keep a list of rows created because they can be added out of order
+        // Currently later transitions will just overwrite prior transitions
+
+        int* row = table->data[index];
+
+        // State flags
+        int flags = !s_id * 2;
+        if (line[0][0] == '+') flags++;
+
+        int t_id;
+        char* tn;
+        row[0] = flags;
+        for (int i = 1; i <= table->length; i++) {
+            tn = line[i + 1];
+            if (tn[0] == 'E') continue;         // No transition, skip
+
+            // Find ID as index of transition table
+            t_id = atoi(tn);                    // TODO: Make sure this is a valid thing to convert
+            if (find(state_ids, t_id) < 0) {
+                create_transition(table);
+                append(state_ids, t_id);
+            }
+
+            t_id = find(state_ids, t_id);
+            row[i] = t_id;
+        }
+        free_split(&line, count);
+    }
+
+    // If the table has no rows, then the file must have been empty
+    if (table->size < 1) {
+        fprintf(stderr, "Transition table file is invalid or empty\n");
+        destroy_table(&table);
+    }
+
+    // Memory cleanup
+    fclose(inf);
+    free(linebuf);
+    destroy_list(&state_ids);
+
+    return table;
 }
 
 // Dynamically allocates and initializes a new table with a given character set
@@ -457,6 +552,7 @@ int match_token(dfa* table, char* token) {
 // Kinda vibes the same as destroying the death star
 void destroy_table(dfa** table_p) {
     dfa* table = *table_p;
+    if (!table) return;
 
     // Free each row of the table
     for (int i = 0; i < table->size; i++)

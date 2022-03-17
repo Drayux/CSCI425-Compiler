@@ -74,7 +74,7 @@ int find_char(char tc, char* str, size_t len) {
 
 // Replaces all ASCII whitespace chars (excl '\0') with the char specified in rep
 // NOTE: String must be null-terminated
-// NOTE: Input string must be freeable
+// NOTE: Input string must be mutable
 // NOTE: Currently removes all extended characters
 // No return value: Works in-place
 void clean(char* str, char rep) {
@@ -102,6 +102,57 @@ void clean(char* str, char rep) {
     // Determine where to place the null terminator
     if (skip) len--;
     str[len++] = 0;
+}
+
+// Converts an array of chars into their respective integer value
+// 'len' specifies length of array
+// Partial credit to stackoverflow post: https://stackoverflow.com/questions/10156409/convert-hex-string-char-to-int
+int convert_hex(char* hex, size_t len) {
+    int mult = 1;
+    int total = 0;
+    char c;
+    for (int i = len - 1; i >= 0; i--) {
+        c = hex[i];
+
+        if (c >= '0' && c <= '9') c = c - '0';
+        else if (c >= 'a' && c <='f') c = c - 'a' + 10;
+        else if (c >= 'A' && c <='F') c = c - 'A' + 10;
+        else return -1;
+
+        // Though slower than bit shifts, this accounts for 'endian-ness'
+        total += c * mult;
+        mult *= 16;
+    }
+    return total;
+}
+
+// Replace x## tokens in strings with the indicated character
+// NOTE: String must be null-terminated
+// NOTE: Input string must be mutable
+// No return value: Works in-place
+void convert_encoded(char* str, char delim) {
+    char c;
+    char hex[2];
+    int len = 0;        // Current index of the revised string
+
+    for (int i = 0; (c = str[i]); i++) {
+        if (c == delim) {
+            hex[0] = str[i + 1];
+            hex[1] = str[i + 2];
+
+            int result = convert_hex(hex, 2);
+            if (result >= 0) {
+                str[len++] = (char) result;
+                i += 2;
+                continue;
+            }
+        }
+        // Assume c is a normal character
+        str[len++] = c;
+    }
+
+    //  Update null terminator
+    str[len] = 0;
 }
 
 // Split a string by a specified delimiter char
@@ -165,7 +216,6 @@ char** split(char* str, char delim, size_t* count) {
 
         start = ++index;
     }
-
     return split_str;
 }
 

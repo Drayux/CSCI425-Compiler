@@ -24,10 +24,10 @@ typedef struct dfa_table {
 // Function declarations
 void print_table(dfa* table);
 void output_table(dfa* table, char* path);
+dfa* parse_table(char* path, char* sigma);      // TODO: After LUTHER change this to parse files with sigma as a header
 dfa* create_table(char* sigma);
 int* create_transition(dfa* table);
 void remove_transition(dfa* table, int id, int rep);
-// void update_transition(dfa* table, ...);
 int merge_states(dfa* table);
 void prune_states(dfa* table);
 void optimize_table(dfa* table);

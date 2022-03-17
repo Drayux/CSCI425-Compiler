@@ -30,7 +30,7 @@ typedef struct nfa_container {
 
 // Function declarations
 nfa* create_container(char* sigma);
-nfa* parse_file(char* path);
+nfa* parse_nfa(char* path);
 void print_container(nfa* container);
 nfa_state* create_state_f(nfa* container, char isEntry, char isAccept);
 nfa_state* create_state(nfa* container);

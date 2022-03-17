@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
 	char* inpath = argv[1];
 	char* outpath = argv[2];
 
-    nfa* container = parse_file(inpath);
+    nfa* container = parse_nfa(inpath);
 	dfa* table = convert_nfa(container);
 
 	optimize_table(table);
