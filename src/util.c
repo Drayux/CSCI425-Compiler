@@ -229,6 +229,44 @@ void free_split(char*** str, size_t count) {
 	str = NULL;
 }
 
+// Copies contents of a file at the specifed path into a c-string
+// Will always return a new string of unspecified length
+// Partial credit to: https://stackoverflow.com/questions/174531/how-to-read-the-content-of-a-file-to-a-string-in-c
+char* load_str(char* path, size_t* len) {
+    FILE* inf = fopen(path, "r");
+    char* out = calloc(1, sizeof(char));    // Empty string
+    *len = 1;
+
+    // Check that the file opened successfully
+    if (!inf) {
+        fprintf(stderr, "Failed to open file: %s\n", path);
+        return out;
+    } printf("Parsing tokens from %s ...\n", path);
+
+    // Determine file length (without stat)
+    if (fseek(inf, 0, SEEK_END)) return out;
+    unsigned long length = (unsigned long) ftell(inf);
+    if (fseek(inf, 0, SEEK_SET) || length < 0 /*|| length >= SIZE_MAX*/) return out;
+
+    size_t length_s = (size_t) length;
+    char* out_n = (char*) realloc(out, (length_s + 1) * sizeof(char));
+
+    if (!out_n) {
+        fprintf(stderr, "Realloc failed (reading token file to memory)\n");
+        return out;
+    }
+
+    out = out_n;
+    out[length_s] = 0;
+
+    // Read in the file
+    fread(out, sizeof(char), length_s, inf);
+    fclose(inf);
+
+    *len = length_s;
+    return out;
+}
+
 // Use some math to guess the size of an allocation
 // Mostly used as a subroutine of NFA states
 // This is arguably a bit hackjob, but these arrays are not intended for elements to be removed

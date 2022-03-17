@@ -9,7 +9,6 @@
 // Basic operation similar to a C++ vector
 typedef struct dfa_table {
     char* sigma;        // String corresponding to the possible characters for transitions
-    //char* orig;         // Copy of TC set left unsorted (same order as infile)
     size_t length;      // Number of characters in the transition character sets
                         //   ^^Needs +1 for row 'width' (number of cols)
 

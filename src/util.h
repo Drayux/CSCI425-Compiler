@@ -19,6 +19,7 @@ int convert_hex(char* hex, size_t len);
 void convert_encoded(char* str, char delim);
 char** split(char* str, char delim, size_t* count);
 void free_split(char*** str, size_t count);
+char* load_str(char* path, size_t* len);
 size_t calc_alloc_size(unsigned int size);
 
 #endif // UTIL_H
