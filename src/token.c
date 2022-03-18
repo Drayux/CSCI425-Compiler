@@ -18,6 +18,9 @@ token* create_token(char* name, char* path, char* sigma) {
 	memcpy(tk->name, name, len * sizeof(char));
 	tk->name[len] = 0;
 
+	// String data (set this during file IO directly)
+	tk->data = NULL;
+
 	// Trivial data
 	reset_token(tk);
 
@@ -29,7 +32,25 @@ token* create_token(char* name, char* path, char* sigma) {
 // Updates all respective fields
 // Returns 0 if match failed, else 1
 int advance_token(token* tk, char c) {
+	if (tk->state < 0) return 0;		// Match failed previously
 
+	dfa* table = tk->table;
+	int* row = table->data[tk->state];
+	int tc_i = find_char(c, table->sigma, table->length);
+
+	int state = row[tc_i + 1];
+	tk->state = state;
+
+	if (state < 0) return 0;
+
+	tk->length += 1;
+	if (table->data[state][0] & 1) {
+		tk->accepting = 1;
+		tk->failed = tk->length;
+
+	} else tk->accepting = 0;
+
+	return 1;
 }
 
 // Matches a list of tokens simultaneously from an input string
@@ -37,7 +58,37 @@ int advance_token(token* tk, char c) {
 // Count is number tokens in the list of tokens
 // NOTE: Offset of input string can be found using length of the final token
 token* match_tokens(token** tokens, int count, char* file) {
+	int offset = 0;
+	int matches = 1;
+	token* tk;
+	char c;
+	// TODO maybe? Reset all tokens preemptively
 
+	// Set token start of each match
+	for (int i = 0; i < count; i++) tokens[i]->string = file;
+
+	while (matches) {
+		matches = 0;
+		c = file[offset++];
+
+		for (int i = 0; i < count; i++) {
+			tk = tokens[i];
+			matches += advance_token(tk, c);
+		}
+	}
+
+	// Determine the best match once all have failed
+	int index_max = 0;
+	int length_max = 0;
+	for (int i = 0; i < count; i++) {
+		tk = tokens[i];
+		if (tk->failed > length_max) {
+			length_max = tk->failed;
+			index_max = i;
+		}
+	}
+
+	return tokens[index_max];
 }
 
 // Reset a single token
@@ -46,6 +97,7 @@ void reset_token(token* tk) {
 	tk->state = 0;
 	tk->accepting = tk->table->data[0][0] & 1;
 	tk->length = 0;
+	tk->failed = 0;
 	tk->string = NULL;
 }
 
@@ -64,14 +116,15 @@ void output_token(token* tk, int fd, int l_no, int ch_no) {
 	char nl = 10;					// NEWLINE character
 
 	size_t name_len = strlen(tk->name);
-	size_t match_len = (size_t) tk->length;
+	size_t data_len = (tk->data) ? strlen(tk->data) : (size_t) tk->failed;
 
 	// Write the name
 	write(fd, tk->name, name_len);
 	write(fd, &sp, 1);
 
 	// Write the token string
-	write(fd, tk->string, match_len);
+	if (tk->data) write(fd, tk->data, data_len);
+	else write(fd, tk->string, data_len);
 	write(fd, &sp, 1);
 
 	// Write the file index
@@ -89,5 +142,11 @@ void output_token(token* tk, int fd, int l_no, int ch_no) {
 // Clean up a token in memory
 // Frees token name and destroys its transition table
 void destroy_token(token** tk) {
+	token* tmp = *tk;
 
+	// Destroy members
+	destroy_table(&(tmp->table));
+	free(tmp->name);
+
+	*tk = NULL;
 }

@@ -525,7 +525,7 @@ void optimize_table(dfa* table) {
 // Returns -1 if so, or the position of the first character in which the matching fails
 // This function is technically not memory-safe!!
 // However, it is incredibly unlikely that memory garbage will match a DFA for long
-int match_token(dfa* table, char* token) {
+int match_token(dfa* table, char* tk) {
     char tc;
     int tc_i;
     int* row;
@@ -533,7 +533,7 @@ int match_token(dfa* table, char* token) {
     int length = 0;     // Length of match so far
     int state = 0;      // 0 is assumed entry state
 
-    while ((tc = token[length])) {
+    while ((tc = tk[length])) {
         row = table->data[state];
         tc_i = find_char(tc, table->sigma, table->length);
         length++;
@@ -544,7 +544,7 @@ int match_token(dfa* table, char* token) {
         //printf("State: %d\n\n", state);
     }
 
-    if (token[0]) length++;     // Edge case to account for project requirements
+    if (tk[0]) length++;     // Edge case to account for project requirements
     return (table->data[state][0] & 1) ? -1 : length;
 }
 

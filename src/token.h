@@ -7,14 +7,15 @@
 
 typedef struct token_t {
     char* name;         // Name of the token as specified in the scanner definition file
+	char* data;			// For LUTHER, not sure what this is meant for admittedly
     dfa* table;         // Transition table representing the token being matched
 
     int state;          // Current state within the DFA (as of last iteration)
     int accepting;      // Flag representing whether current state is accepting
-    int length;         // Current (or maximum) number of characters matched
+	int failed;         // Length at which the last accept state was seen
+    int length;         // Current (or maximum) number of characters matched (used in advance token only)
 
 	char* string;		// Pointer to start of token string, set at the start of a match
-	// int failed;         // Length at which the match failed
 } token;
 
 token* create_token(char* name, char* path, char* sigma);

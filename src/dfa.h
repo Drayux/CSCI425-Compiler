@@ -30,7 +30,7 @@ void remove_transition(dfa* table, int id, int rep);
 int merge_states(dfa* table);
 void prune_states(dfa* table);
 void optimize_table(dfa* table);
-int match_token(dfa* table, char* token);
+int match_token(dfa* table, char* tk);
 void destroy_table(dfa** table_p);
 
 #endif // DFA_H
