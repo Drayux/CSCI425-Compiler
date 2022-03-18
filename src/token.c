@@ -88,6 +88,7 @@ token* match_tokens(token** tokens, int count, char* file) {
 		}
 	}
 
+	if (!length_max) return NULL;
 	return tokens[index_max];
 }
 
@@ -110,6 +111,8 @@ void reset_tokens(token** tokens, int count) {
 // Output relevent token data to the specified file descriptor
 // Format is as specified in the requirements for LUTHER project
 void output_token(token* tk, int fd, int l_no, int ch_no) {
+	if (!tk) return;
+
 	const size_t BUFSIZE = 24;
 	char buf[BUFSIZE] = { 0 };		// For saving decimal values; 2^64 requires 20 places
 	char sp = 32;					// SPACE character
@@ -147,6 +150,7 @@ void destroy_token(token** tk) {
 	// Destroy members
 	destroy_table(&(tmp->table));
 	free(tmp->name);
+	free(tmp);
 
 	*tk = NULL;
 }

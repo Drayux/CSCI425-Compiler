@@ -59,7 +59,7 @@ void output_table(dfa* table, char* path) {
     int fd = fileno(outf);
     char space = ' ';
     char newline = '\n';
-    char* buf = (char*) calloc(20, sizeof(char));
+    char* buf = (char*) calloc(24, sizeof(char));
     int* row;
     //int row_len = (table->length + 2) * 2;      // Flag + ID + TChars (*2 for delims space/newline)
 
@@ -74,8 +74,8 @@ void output_table(dfa* table, char* path) {
         write(fd, &space, 1);
 
         // Write the ID
-        snprintf(buf, 20, "%d", i);         // 2^64 consists of 20 characters in base 10
-        write(fd, buf, strnlen(buf, 20));
+        snprintf(buf, 24, "%d", i);         // 2^64 consists of 20 characters in base 10
+        write(fd, buf, strnlen(buf, 24));
 
         // Write the transitions
         for (int j = 1; j <= table->length; j++) {
@@ -89,8 +89,8 @@ void output_table(dfa* table, char* path) {
 
             // Non-empty transition
             } else {
-                snprintf(buf, 20, "%d", i);
-                write(fd, buf, strnlen(buf, 20));
+                snprintf(buf, 24, "%d", tr);
+                write(fd, buf, strnlen(buf, 24));
             }
         }
 
