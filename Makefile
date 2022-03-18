@@ -1,7 +1,7 @@
 CC=clang
 CFLAGS=-g -Wall -std=gnu17 -ggdb3 -fsanitize=address
 #INCL=-lgetline
-SRCS=util.c list.c dfa.c nfa.c stack.c convert.c
+SRCS=util.c list.c stack.c dfa.c nfa.c convert.c token.c
 TARGET_DEBUG=DEBUG			# main() in debug.c
 TARGET_CONVERT=CONVERT		# main() in match.c
 TARGET_PARSE=LUTHER			# main() in parse.c (lexer)
