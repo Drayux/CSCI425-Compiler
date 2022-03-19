@@ -16,10 +16,13 @@ char* str_sort(char* str, int len);
 int find_char(char tc, char* str, size_t len);
 void clean(char* str, char rep);
 int convert_hex(char* hex, size_t len);
-void convert_encoded(char* str, char delim);
+void decode_string(char* str, char delim);
+char* encode_string(char* orig, size_t len, char delim);
 char** split(char* str, char delim, size_t* count);
 void free_split(char*** str, size_t count);
 char* load_str(char* path, size_t* len);
 size_t calc_alloc_size(unsigned int size);
+
+// TODO: Standardized function for parsing files (something with getline and static variables or somethin)
 
 #endif // UTIL_H

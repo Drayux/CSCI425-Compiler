@@ -28,6 +28,108 @@ token* create_token(char* name, char* path, char* sigma) {
 	return tk;
 }
 
+// Parse scanner definition file and create the respective tokens
+// Returns list of tokens and count (passed by reference)
+token** parse_tokens(char* path, int* count) {
+	FILE* inf = fopen(path, "r");
+
+    // Check that the file opened successfully
+    if (!inf) {
+        fprintf(stderr, "Failed to open file: %s\n", path);
+        exit(1);        // Exit the program if file cannot be accessed, as per project requirements
+    } printf("Parsing scanner definition from %s ...\n", path);
+
+    // Using getline
+    int lc = 0;
+    char* linebuf = NULL;
+    size_t buflen = 0;
+    ssize_t nread;
+
+    // Read the first line
+    while (1) {
+        nread = getline(&linebuf, &buflen, inf);
+        lc++;
+
+        if (nread == -1) {
+            fprintf(stderr, "Scanner definition is empty\n");
+            exit(1);    // Exit the program if file is empty, as per project requirements
+
+        } else if (nread > 1) break;     // Ignore empty lines (does not account for CRLF)
+    }
+
+    // Parse first line
+	char* sigma = calloc(nread + 1, sizeof(char));
+	memcpy(sigma, linebuf, nread * sizeof(char));
+
+	clean(sigma, 0);
+    decode_string(sigma, 'x');
+	str_sort(sigma, nread);			// Shouldn't be necessary but just in case
+
+	// DEBUG
+	// printf("Sigma:\n");
+	// printf("'%s'\n", sigma);
+
+	// Begin creating tokens
+	size_t token_count = 0;
+	size_t token_capacity = 4;
+	token** tokens = calloc(token_capacity, sizeof(token*));
+
+	char** line;
+	size_t split_len;
+	token* tk;
+	while ((nread = getline(&linebuf, &buflen, inf)) != -1) {
+        lc++;
+        if (nread < 2) continue;
+
+        // Split the new line
+		clean(linebuf, ' ');
+        line = split(linebuf, ' ', &split_len);
+        if (split_len < 2) {
+            // Invalid transition
+            fprintf(stderr, "WARNING: Invalid token definition (line %d)\n", lc);
+            free_split(&line, split_len);
+			continue;
+        }
+
+		// DEBUG
+		// printf("TEST: '%s'\n", linebuf);
+		// for (int i = 0; i < split_len; i++)
+		// 	printf("SPLIT %d: '%s'\n", i + 1, line[i]);
+
+		// Create the new token and insert it into the array
+		tk = create_token(line[1], line[0], sigma);
+		if (split_len > 2) {
+			decode_string(line[2], 'x');
+			size_t data_len = strlen(line[2]);
+			tk->data = (char*) calloc(data_len + 1, sizeof(char));
+			memcpy(tk->data, line[2], data_len * sizeof(char));
+		}
+
+		if (token_count == token_capacity) {
+			// Realloc array
+			token_capacity *= 2;
+			token** tokens_n = (token**) realloc(tokens, token_capacity * sizeof(token*));
+			if (!tokens_n) {
+	            fprintf(stderr, "Realloc failed (expansion of tokens list)\n");
+				free_split(&line, split_len);
+	            return tokens;
+	        }
+			tokens = tokens_n;
+		}
+
+		tokens[token_count++] = tk;
+		free_split(&line, split_len);
+	}
+
+	// Cleanup
+	free(linebuf);
+	free(sigma);
+	fclose(inf);
+
+	*count = (int) token_count;
+	return tokens;
+}
+
 // Attempt to match the next (specified in the param) character to the token's DFA
 // Updates all respective fields
 // Returns 0 if match failed, else 1
@@ -119,16 +221,26 @@ void output_token(token* tk, int fd, int l_no, int ch_no) {
 	char nl = 10;					// NEWLINE character
 
 	size_t name_len = strlen(tk->name);
-	size_t data_len = (tk->data) ? strlen(tk->data) : (size_t) tk->failed;
 
 	// Write the name
 	write(fd, tk->name, name_len);
 	write(fd, &sp, 1);
 
 	// Write the token string
-	if (tk->data) write(fd, tk->data, data_len);
-	else write(fd, tk->string, data_len);
+	char* data;
+	size_t data_len = tk->failed;
+	if (tk->data) {
+		data = tk->data;
+		data_len = strlen(data);
+	}
+	else data = tk->string;
+
+	// Convert string back into alphabet encoding
+	data = encode_string(data, data_len, 'x');
+	data_len = strlen(data);
+	write(fd, data, data_len);
 	write(fd, &sp, 1);
+	free(data);		// Cleanup right away
 
 	// Write the file index
 	size_t index_len = 0;

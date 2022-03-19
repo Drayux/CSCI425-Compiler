@@ -73,6 +73,7 @@ int find_char(char tc, char* str, size_t len) {
 }
 
 // Replaces all ASCII whitespace chars (excl '\0') with the char specified in rep
+// If '\0' is the replacement character, no replacement will be used
 // NOTE: String must be null-terminated
 // NOTE: Input string must be mutable
 // NOTE: Currently removes all extended characters
@@ -89,7 +90,7 @@ void clean(char* str, char rep) {
 
         if (c > 127) continue;
         if (c < 33 || c == 127) {
-            if (skip) continue;
+            if (skip || rep == 0) continue;
 
             c = rep;
             skip = 1;
@@ -130,7 +131,7 @@ int convert_hex(char* hex, size_t len) {
 // NOTE: String must be null-terminated
 // NOTE: Input string must be mutable
 // No return value: Works in-place
-void convert_encoded(char* str, char delim) {
+void decode_string(char* str, char delim) {
     char c;
     char hex[2];
     int len = 0;        // Current index of the revised string
@@ -153,6 +154,40 @@ void convert_encoded(char* str, char delim) {
 
     //  Update null terminator
     str[len] = 0;
+}
+
+// Convert a string back into alphabet encoding
+// Creates a new string and does not attempt to free old string
+// len is length of non-terminated string (i.e. "hello" = 5)
+char* encode_string(char* orig, size_t len, char delim) {
+	// Determine length of new string
+	// size_t len_n = 0;
+	// char c;
+	// for (int i = 0; i < len; i++) {
+	// 	c = orig[i];
+	//
+	// 	if (c >= 'A' && c <= 'Z') len_n += 1;
+	// 	else if (c >= 'a' && c <= 'z') len_n += 1;
+	// 	else len_n += 3;
+	// }
+
+	char c;
+	size_t len_n = 3 * len;
+	size_t index = 0;
+	char* new = (char*) calloc(len_n + 1, sizeof(char));
+	for (int i = 0; i < len; i++) {
+		c = orig[i];
+
+		if (c >= 'A' && c <= 'Z') new[index++] = c;
+		else if (c >= 'a' && c <= 'z') new[index++] = c;
+		else {
+			// Length will always be exactly 3
+			snprintf(new + index, 4, "%c%02x", delim, c);
+			index += 3;
+		}
+	}
+
+	return new;
 }
 
 // Split a string by a specified delimiter char

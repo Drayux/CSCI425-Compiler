@@ -16,27 +16,52 @@ int main(int argc, char** argv) {
 
 	// size_t len;
 	// char* str = load_str("test", &len);
-
+	//
 	// printf("Length: %d\n", (int) len);
 	// printf("String:\n");
 	// printf("'%s'\n", str);
 
-	char* sigma = "abdce";
-	char* str = "cabababcdbbbce";
+	// char str1[] = "Hello there \nworld! ";
+	// char str2[] = "Hello there \nworld! ";
+	// clean(str1, ' ');
+	// clean(str2, 0);
+	// printf("str1: '%s'\n", str1);
+	// printf("str2: '%s'\n", str2);
+	// snprintf(str2, 4, "x%02x", 255);
+	// printf("sample: '%s'\n", str2);
+	// char* test = encode_string(str1, strlen(str1), 'x');
+	// printf("encoded: '%s'\n", test);
+	// free(test);
 
-	token* tokens[1];
-	tokens[0] = create_token("AAA", "tables/match-a.tt", sigma);
-	// tokens[1] = create_token("oogabooga", "tables/match-b.tt", sigma);
+	int count = 0;
+	token** tks = parse_tokens("data/example.u", &count);
 
-	print_table(tokens[0]->table);
-	token* result = match_tokens(tokens, 1, str);
+	for (int i = 0; i < count; i++) {
+		output_token(tks[i], STDOUT_FILENO, 0, 0);
+	}
 
-	printf("Name: %s\n", result->name);
-	printf("Length: %d\n", result->failed);
-	// printf(" Match: %s\n", result->string);
+	// char test[] = "x5cooox5cx20x5cooox5c";
+	// printf("orig: '%s'\n", test);
+	//
+	// decode_string(test, 'x');
+	// printf("decd: '%s'\n", test);
+	//
+	// char* test2 = encode_string(test, strlen(test), 'x');
+	// printf("encd: '%s'\n", test2);
+	// return 0;
 
-	output_token(result, STDOUT_FILENO, 0, 0);
-	destroy_token(tokens);
+	// token* tk;
+	// char* sigma = "\n \\opqrs";
+	// tk = create_token("whack", "data/tables/whackamole.tt", sigma);
+	//
+	// print_table(tk->table);
+	// //token* result = match_tokens(tokens, 1, str);
+	//
+	// printf("Name: %s\n", tk->name);
+	// printf("Length: %d\n", tk->failed);
+	//
+	// output_token(tk, STDOUT_FILENO, 0, 0);
+	// destroy_token(&tk);
 
 	return 0;
 }

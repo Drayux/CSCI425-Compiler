@@ -19,6 +19,7 @@ typedef struct token_t {
 } token;
 
 token* create_token(char* name, char* path, char* sigma);
+token** parse_tokens(char* path, int* count);
 int advance_token(token* tk, char c);
 token* match_tokens(token** tokens, int count, char* file);
 // Something something match file...yeah
