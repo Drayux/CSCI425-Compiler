@@ -8,8 +8,6 @@
 
 // LUTHER-SPECIFIC FUNCTIONS (for now)
 
-// TODO create array of character lengths to line count (index)
-
 int main(int argc, char** argv) {
 	// -- SETUP --
 	if (argc < 4) {
@@ -37,6 +35,14 @@ int main(int argc, char** argv) {
 		return 1;
 	} outfd = fileno(outf); */
 
+	list* char_positions = create_list();
+	append(char_positions, 0);
+	for (int i = 0; i < src_len; i++) {
+		if (source[i] == '\n') append(char_positions, i + 1);
+	}
+
+	print_list(char_positions);
+
 	// -- CORE --
 	printf("Beginning parse!\n");
 
@@ -46,12 +52,24 @@ int main(int argc, char** argv) {
 	while (offset < src_len) {
 		reset_tokens(token_list, num_tokens);
 		result = match_tokens(token_list, num_tokens, source + offset);
-		output_token(result, STDOUT_FILENO, 0, 0);
 
+		// Find the line number
+		int lineno = -1;
+		find_sorted(char_positions, offset + 1, &lineno);
+
+		// Find the character number
+		int charno = 1 + offset - char_positions->data[lineno - 1];
+
+		output_token(result, STDOUT_FILENO, lineno, charno);
 		offset += result->failed;
 	}
 
-	// todo close outf
+	// -- CLEANUP --
+	// fclose(outf);
+	free(source);
+	destroy_list(&char_positions);
+	for (int i = 0; i < num_tokens; i++)
+		destroy_token(token_list + i);
 
 	return 0;
 }

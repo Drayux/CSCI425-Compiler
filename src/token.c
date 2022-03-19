@@ -262,6 +262,7 @@ void destroy_token(token** tk) {
 
 	// Destroy members
 	destroy_table(&(tmp->table));
+	if (tmp->data) free(tmp->data);
 	free(tmp->name);
 	free(tmp);
 
