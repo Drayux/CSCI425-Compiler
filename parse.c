@@ -27,21 +27,19 @@ int main(int argc, char** argv) {
 		return 0;		// "User" error, by project requirements
 	}
 
-	/*/ Attempt to open the output file
+	// Attempt to open the output file
 	int outfd;
 	FILE* outf = fopen(argv[3], "w");
 	if (!outf) {
-		fprintf("ERROR: Failed to open output file %s\n", argv[3]);
+		fprintf(stderr, "ERROR: Failed to open output file %s\n", argv[3]);
 		return 1;
-	} outfd = fileno(outf); */
+	} outfd = fileno(outf);
 
 	list* char_positions = create_list();
 	append(char_positions, 0);
 	for (int i = 0; i < src_len; i++) {
 		if (source[i] == '\n') append(char_positions, i + 1);
-	}
-
-	print_list(char_positions);
+	} // print_list(char_positions);
 
 	// -- CORE --
 	printf("Beginning parse!\n");
@@ -60,12 +58,12 @@ int main(int argc, char** argv) {
 		// Find the character number
 		int charno = 1 + offset - char_positions->data[lineno - 1];
 
-		output_token(result, STDOUT_FILENO, lineno, charno);
+		output_token(result, outfd, lineno, charno);
 		offset += result->failed;
 	}
 
 	// -- CLEANUP --
-	// fclose(outf);
+	fclose(outf);
 	free(source);
 	destroy_list(&char_positions);
 	for (int i = 0; i < num_tokens; i++)
