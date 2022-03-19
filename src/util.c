@@ -178,7 +178,8 @@ char* encode_string(char* orig, size_t len, char delim) {
 	for (int i = 0; i < len; i++) {
 		c = orig[i];
 
-		if (c >= 'A' && c <= 'Z') new[index++] = c;
+		if (c >= '0' && c <= '9') new[index++] = c;
+		else if (c >= 'A' && c <= 'Z') new[index++] = c;
 		else if (c >= 'a' && c <= 'z') new[index++] = c;
 		else {
 			// Length will always be exactly 3

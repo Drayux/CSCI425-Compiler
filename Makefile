@@ -6,9 +6,9 @@ TARGET_DEBUG=DEBUG			# main() in debug.c
 TARGET_CONVERT=CONVERT		# main() in match.c
 TARGET_PARSE=LUTHER			# main() in parse.c (lexer)
 
-$(TARGET_DEBUG): debug.c $(foreach sf,$(SRCS),src/$(sf))
+# $(TARGET_DEBUG): debug.c $(foreach sf,$(SRCS),src/$(sf))
 # $(TARGET_CONVERT): match.c $(foreach sf,$(SRCS),src/$(sf))
-# $(TARGET_PARSE): parse.c $(foreach sf,$(SRCS),src/$(sf))
+$(TARGET_PARSE): parse.c $(foreach sf,$(SRCS),src/$(sf))
 	$(CC) $(CFLAGS) $^ -o $@
 	#$(CC) $(CFLAGS) $^ -o $@ $(INCL)
 

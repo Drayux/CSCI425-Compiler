@@ -172,6 +172,7 @@ token* match_tokens(token** tokens, int count, char* file) {
 	while (matches) {
 		matches = 0;
 		c = file[offset++];
+		if (!c) break;		// Exit the loop if EOF is reached
 
 		for (int i = 0; i < count; i++) {
 			tk = tokens[i];
